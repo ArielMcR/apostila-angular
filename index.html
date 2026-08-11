@@ -1,0 +1,2126 @@
+<!DOCTYPE html>
+<html lang="pt-br" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Angular · Guia prático do iniciante</title>
+<style>
+/* =========================================================
+   TOKENS DE TEMA
+   ========================================================= */
+:root {
+  --red: #dd0031;
+  --red-dark: #b80029;
+  --blue: #2563eb;
+  --purple: #7c3aed;
+  --orange: #f59e0b;
+  --green-ok: #16a34a;
+
+  /* claro */
+  --bg: #eef1f5;
+  --paper: #ffffff;
+  --ink: #1a2230;
+  --muted: #667085;
+  --line: #e4e7ec;
+  --soft: #f6f7f9;
+  --sidebar-bg: #12161d;
+  --sidebar-ink: #cbd5e1;
+  --sidebar-muted: #7c8798;
+  --sidebar-active: #ffffff;
+  --code-bg: #111827;
+  --code-ink: #e5e7eb;
+  --shadow: 0 10px 40px rgba(20,30,50,.08);
+}
+html[data-theme="dark"] {
+  --bg: #0b0e14;
+  --paper: #151a22;
+  --ink: #e6ebf2;
+  --muted: #98a2b3;
+  --line: #262d38;
+  --soft: #1b212b;
+  --sidebar-bg: #0a0d12;
+  --sidebar-ink: #c3ccd8;
+  --sidebar-muted: #6b7684;
+  --sidebar-active: #ffffff;
+  --code-bg: #0c1119;
+  --code-ink: #e5e7eb;
+  --shadow: 0 10px 40px rgba(0,0,0,.4);
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.65;
+  font-size: 16px;
+}
+
+a { color: var(--blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* barra de progresso de leitura no topo */
+#progress-bar {
+  position: fixed;
+  top: 0; left: 0;
+  height: 3px;
+  width: 0%;
+  background: linear-gradient(90deg, var(--red), var(--red-dark));
+  z-index: 999;
+  transition: width .1s linear;
+}
+
+/* =========================================================
+   LAYOUT: SIDEBAR + PAPEL
+   ========================================================= */
+.layout { display: flex; min-height: 100vh; }
+
+.sidebar {
+  width: 300px;
+  flex-shrink: 0;
+  background: var(--sidebar-bg);
+  color: var(--sidebar-ink);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  padding: 22px 18px;
+}
+.sidebar::-webkit-scrollbar { width: 8px; }
+.sidebar::-webkit-scrollbar-thumb { background: #2a3340; border-radius: 8px; }
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin-bottom: 6px;
+}
+.brand .logo {
+  width: 38px; height: 38px;
+  border-radius: 9px;
+  background: var(--red);
+  display: grid; place-items: center;
+  font-weight: 900; color: #fff; font-size: 20px;
+  flex-shrink: 0;
+}
+.brand .t1 { font-weight: 800; font-size: 15px; color: #fff; line-height: 1.2; }
+.brand .t2 { font-size: 11px; color: var(--sidebar-muted); letter-spacing: .3px; }
+
+.side-sub {
+  font-size: 11px;
+  color: var(--sidebar-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 20px 8px 8px;
+  font-weight: 700;
+}
+
+.nav a {
+  display: block;
+  color: var(--sidebar-ink);
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  margin: 2px 0;
+  border-left: 3px solid transparent;
+  transition: background .15s, color .15s, border-color .15s;
+  text-decoration: none;
+}
+.nav a .num {
+  display: inline-block;
+  width: 22px;
+  color: var(--sidebar-muted);
+  font-weight: 700;
+  font-size: 12px;
+}
+.nav a:hover { background: rgba(255,255,255,.05); text-decoration: none; }
+.nav a.active {
+  background: rgba(221,0,49,.14);
+  color: var(--sidebar-active);
+  border-left-color: var(--red);
+  font-weight: 600;
+}
+.nav a.active .num { color: var(--red); }
+
+.side-foot {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #232b36;
+  font-size: 11px;
+  color: var(--sidebar-muted);
+  line-height: 1.6;
+}
+
+/* área principal / papel */
+.content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+  padding: 40px 32px 120px;
+}
+.paper {
+  background: var(--paper);
+  max-width: 860px;
+  width: 100%;
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  padding: 52px 60px 70px;
+  border: 1px solid var(--line);
+}
+
+/* topo do papel */
+.topbar { border-top: 7px solid var(--red); margin: -52px -60px 26px; border-radius: 16px 16px 0 0; }
+
+/* =========================================================
+   TOPO FIXO MOBILE
+   ========================================================= */
+.topbar-mobile {
+  display: none;
+  position: sticky; top: 0; z-index: 50;
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+  padding: 10px 14px;
+  align-items: center;
+  gap: 10px;
+}
+.topbar-mobile .logo {
+  width: 30px; height: 30px; border-radius: 7px; background: var(--red);
+  display: grid; place-items: center; color: #fff; font-weight: 900;
+}
+#menu-btn, #theme-btn {
+  background: var(--soft);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  border-radius: 9px;
+  padding: 7px 11px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+}
+#theme-btn { margin-left: auto; }
+
+/* botão tema no desktop, dentro da sidebar */
+.theme-toggle {
+  width: 100%;
+  background: rgba(255,255,255,.06);
+  border: 1px solid #2a3340;
+  color: var(--sidebar-ink);
+  border-radius: 9px;
+  padding: 9px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  margin-top: 14px;
+}
+.theme-toggle:hover { background: rgba(255,255,255,.1); }
+
+/* =========================================================
+   TIPOGRAFIA DE CONTEÚDO
+   ========================================================= */
+.paper p { margin: 12px 0; text-align: justify; text-justify: inter-word; }
+  .paper li { text-align: justify; }
+  .doc p, .warn p, .tip-card p, .mission p, .challenge p,
+  .checkpoint p, .result p, .concept p { text-align: justify; }
+.paper ul, .paper ol { margin: 12px 0; padding-left: 24px; }
+.paper li { margin: 6px 0; }
+
+section { scroll-margin-top: 20px; }
+
+h1.capitulo {
+  position: relative;
+  font-size: 27px;
+  font-weight: 900;
+  letter-spacing: -.4px;
+  margin: 10px 0 20px;
+  padding: 20px 22px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--paper) 0%, var(--soft) 100%);
+}
+h1.capitulo::before {
+  content: attr(data-tag);
+  display: block;
+  color: var(--red);
+  font-size: 11px;
+  letter-spacing: 2px;
+  margin-bottom: 6px;
+  font-weight: 800;
+}
+
+h2.secao {
+  font-size: 20px;
+  font-weight: 800;
+  margin: 34px 0 12px;
+  padding-left: 13px;
+  border-left: 4px solid var(--red);
+}
+h3.sub { font-size: 17px; font-weight: 800; margin: 24px 0 8px; color: var(--ink); }
+
+.cover-author { text-align:center; font-weight:800; color:var(--red); font-size:13px; letter-spacing:1px; text-transform:uppercase; }
+.cover-mail { text-align:center; color:var(--muted); font-size:13px; margin:6px 0 40px; }
+.cover-tech { display:inline-block; font-size:15px; color:#fff; background:var(--red); font-weight:800; padding:8px 16px; border-radius:999px; }
+.cover-title { font-size:44px; font-weight:900; margin:16px 0 18px; line-height:1.05; }
+.cover-lead { font-size:17px; color:var(--muted); line-height:1.7; }
+
+/* =========================================================
+   CÓDIGO + BOTÃO COPIAR
+   ========================================================= */
+.codewrap { position: relative; margin: 16px 0; }
+.codewrap pre {
+  background: var(--code-bg);
+  border: 1px solid #1f2937;
+  border-radius: 12px;
+  padding: 18px 18px;
+  overflow-x: auto;
+  margin: 0;
+  font-family: "JetBrains Mono", "Fira Code", "Consolas", monospace;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--code-ink);
+}
+.codewrap pre::-webkit-scrollbar { height: 8px; }
+.codewrap pre::-webkit-scrollbar-thumb { background: #374151; border-radius: 8px; }
+
+.copy-btn {
+  position: absolute;
+  top: 10px; right: 10px;
+  background: rgba(255,255,255,.08);
+  color: #cbd5e1;
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity .15s, background .15s;
+  font-family: inherit;
+}
+.codewrap:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: rgba(255,255,255,.18); }
+.copy-btn.done { background: var(--green-ok); color: #fff; border-color: var(--green-ok); }
+
+code.inline {
+  font-family: "JetBrains Mono", "Consolas", monospace;
+  font-size: 13px;
+  background: var(--soft);
+  color: var(--red-dark);
+  padding: 2px 6px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+}
+html[data-theme="dark"] code.inline { color: #ff8ba0; }
+
+/* realce de sintaxe */
+pre .kw { color: #c4b5fd; font-weight: bold; }
+pre .cm { color: #98a2b3; font-style: italic; }
+pre .st { color: #86efac; }
+pre .ty { color: #93c5fd; }
+pre .fn { color: #f0abfc; }
+pre .nm { color: #fcd34d; }
+
+/* =========================================================
+   CARDS
+   ========================================================= */
+.doc, .warn, .tip-card, .mission, .challenge, .checkpoint, .result, .concept {
+  border-radius: 12px;
+  padding: 15px 17px;
+  margin: 18px 0;
+}
+.doc { background: color-mix(in srgb, var(--blue) 7%, var(--paper)); border: 1px solid color-mix(in srgb, var(--blue) 25%, var(--line)); border-left: 5px solid var(--blue); }
+.warn { background: color-mix(in srgb, var(--orange) 9%, var(--paper)); border: 1px solid color-mix(in srgb, var(--orange) 30%, var(--line)); border-left: 5px solid var(--orange); }
+.tip-card { background: color-mix(in srgb, var(--purple) 7%, var(--paper)); border: 1px solid color-mix(in srgb, var(--purple) 25%, var(--line)); border-left: 5px solid var(--purple); }
+.mission { background: color-mix(in srgb, var(--red) 6%, var(--paper)); border: 1px solid color-mix(in srgb, var(--red) 28%, var(--line)); border-left: 6px solid var(--red); }
+.challenge { background: var(--soft); border: 1px dashed var(--muted); border-left: 5px solid var(--purple); }
+.checkpoint { background: color-mix(in srgb, var(--green-ok) 8%, var(--paper)); border: 1px solid color-mix(in srgb, var(--green-ok) 28%, var(--line)); border-left: 5px solid var(--green-ok); }
+.result { background: color-mix(in srgb, var(--blue) 7%, var(--paper)); border: 1px solid color-mix(in srgb, var(--blue) 25%, var(--line)); border-left: 5px solid var(--blue); }
+.concept { background: var(--soft); border: 1px solid var(--line); }
+
+.card-title { font-weight: 900; font-size: 14px; letter-spacing: .4px; text-transform: uppercase; margin-bottom: 6px; }
+.mission .card-title { color: var(--red); }
+.challenge .card-title { color: var(--purple); }
+.checkpoint .card-title { color: var(--green-ok); }
+.result .card-title { color: var(--blue); }
+.doc b, .warn b, .tip-card b { color: var(--ink); }
+
+.badges { margin: 9px 0 2px; }
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--soft);
+  color: var(--muted);
+  font-size: 11.5px;
+  font-weight: 700;
+  margin-right: 5px;
+  border: 1px solid var(--line);
+}
+.badge.red { background: color-mix(in srgb, var(--red) 14%, var(--paper)); color: var(--red-dark); }
+.badge.blue { background: color-mix(in srgb, var(--blue) 14%, var(--paper)); color: var(--blue); }
+.badge.purple { background: color-mix(in srgb, var(--purple) 14%, var(--paper)); color: var(--purple); }
+.badge.green { background: color-mix(in srgb, var(--green-ok) 14%, var(--paper)); color: var(--green-ok); }
+
+.progress { height: 9px; background: var(--line); border-radius: 99px; overflow: hidden; margin: 9px 0 4px; }
+.progress > span { display: block; height: 100%; background: var(--red); border-radius: 99px; }
+
+.file { color: var(--red-dark); font-weight: 700; }
+html[data-theme="dark"] .file { color: #ff8ba0; }
+.small { font-size: 13px; color: var(--muted); }
+.tip { color: var(--green-ok); font-weight: 700; }
+
+/* =========================================================
+   TABELAS
+   ========================================================= */
+.tablewrap { overflow-x: auto; margin: 18px 0; }
+table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+  font-size: 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+th { background: var(--soft); text-align: left; padding: 11px 12px; border-bottom: 1px solid var(--line); font-weight: 800; }
+td { padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+
+hr.soft { border: none; border-top: 1px solid var(--line); margin: 26px 0; }
+
+  /* ===== Sumário indentado ===== */
+  .toc-list { margin-top: 8px; }
+  .toc-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 14px 16px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    margin: 10px 0;
+    background: var(--paper);
+    color: var(--ink);
+    text-decoration: none;
+    transition: border-color .15s, transform .1s, background .15s;
+  }
+  .toc-row:hover {
+    border-color: var(--red);
+    transform: translateX(4px);
+    background: color-mix(in srgb, var(--red) 4%, var(--paper));
+    text-decoration: none;
+  }
+  .toc-num {
+    flex-shrink: 0;
+    width: 40px; height: 40px;
+    display: grid; place-items: center;
+    background: color-mix(in srgb, var(--red) 12%, var(--paper));
+    color: var(--red);
+    font-weight: 900; font-size: 15px;
+    border-radius: 10px;
+    border: 1px solid color-mix(in srgb, var(--red) 25%, var(--line));
+  }
+  .toc-body {
+    display: flex;
+    flex-direction: column;
+    /* recuo dos subtópicos em relação ao número */
+    padding-left: 4px;
+    min-width: 0;
+    flex: 1;
+  }
+  .toc-title { font-weight: 800; font-size: 15.5px; color: var(--ink); }
+  .toc-sub {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 3px;
+    /* indentação sutil da linha de subtópicos */
+    padding-left: 12px;
+    border-left: 2px solid var(--line);
+    text-align: left;
+  }
+  .toc-arrow {
+    flex-shrink: 0;
+    color: var(--muted);
+    font-size: 18px;
+    align-self: center;
+    transition: color .15s, transform .15s;
+  }
+  .toc-row:hover .toc-arrow { color: var(--red); transform: translateX(3px); }
+  @media (max-width: 560px) {
+    .toc-arrow { display: none; }
+    .toc-num { width: 34px; height: 34px; font-size: 13px; }
+  }
+
+
+  /* não justificar elementos curtos (evita espaçamento feio) */
+  .cover-lead, .small, .chapter-nav .ttl, .chapter-nav .dir,
+  .toc-links, .card-title, .side-foot, th, .badge { text-align: left; }
+  .cover-author, .cover-mail { text-align: center; }
+
+
+/* checklist */
+ul.checklist { list-style: none; padding-left: 0; }
+ul.checklist li { padding: 6px 0 6px 28px; position: relative; }
+ul.checklist li::before { content: "✓"; position: absolute; left: 0; color: var(--green-ok); font-weight: 900; font-size: 15px; }
+
+/* sumário na capa */
+.toc-item { border: 1px solid var(--line); border-radius: 10px; padding: 11px 13px; margin: 8px 0; background: var(--paper); }
+.toc-item a { color: var(--ink); font-weight: 700; text-decoration: none; }
+.toc-item a:hover { color: var(--red); }
+
+/* navegação prev/next no rodapé de cada capítulo */
+.chapter-nav { display: flex; justify-content: space-between; gap: 12px; margin: 40px 0 0; }
+.chapter-nav a {
+  flex: 1;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 16px;
+  text-decoration: none;
+  color: var(--ink);
+  background: var(--paper);
+  transition: border-color .15s, transform .1s;
+}
+.chapter-nav a:hover { border-color: var(--red); transform: translateY(-2px); text-decoration: none; }
+.chapter-nav .dir { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
+.chapter-nav .ttl { font-weight: 700; margin-top: 3px; }
+.chapter-nav a.next { text-align: right; }
+.chapter-nav a.disabled { opacity: .35; pointer-events: none; }
+
+.back-top {
+  position: fixed;
+  bottom: 24px; right: 24px;
+  background: var(--red);
+  color: #fff;
+  border: none;
+  width: 46px; height: 46px;
+  border-radius: 50%;
+  font-size: 20px;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(221,0,49,.4);
+  display: none;
+  z-index: 40;
+}
+
+/* overlay do menu no mobile */
+.overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.5);
+  z-index: 60;
+}
+
+/* =========================================================
+   RESPONSIVO
+   ========================================================= */
+@media (max-width: 980px) {
+  .sidebar {
+    position: fixed;
+    left: 0; top: 0;
+    z-index: 70;
+    transform: translateX(-100%);
+    transition: transform .25s ease;
+    width: 280px;
+  }
+  .sidebar.open { transform: translateX(0); }
+  .overlay.show { display: block; }
+  .topbar-mobile { display: flex; }
+  .content { padding: 18px 12px 100px; }
+  .paper { padding: 26px 20px 44px; border-radius: 12px; }
+  .topbar { margin: -26px -20px 20px; }
+  .cover-title { font-size: 32px; }
+  .theme-toggle-desktop { display: none; }
+}
+@media (min-width: 981px) {
+  .theme-toggle-mobile { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<!-- topo mobile -->
+<div class="topbar-mobile">
+  <button id="menu-btn" aria-label="Menu">☰ Índice</button>
+  <div class="logo">A</div>
+  <b style="font-size:14px;">Guia Angular</b>
+  <button id="theme-btn" class="theme-toggle-mobile" aria-label="Tema">🌙</button>
+</div>
+
+<div class="overlay" id="overlay"></div>
+
+<div class="layout">
+
+  <!-- ===================== SIDEBAR ===================== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="logo">A</div>
+      <div>
+        <div class="t1">Guia prático<br>do iniciante</div>
+        <div class="t2">Angular · Minicurso</div>
+      </div>
+    </div>
+
+    <button class="theme-toggle theme-toggle-desktop" id="theme-btn-desk">🌙 Modo escuro</button>
+
+    <div class="side-sub">Conteúdo</div>
+    <nav class="nav" id="nav">
+      <a href="#capa"><span class="num">•</span>Início</a>
+      <a href="#cap01"><span class="num">01</span>Ambiente e projeto</a>
+      <a href="#cap02"><span class="num">02</span>Componentes e binding</a>
+      <a href="#cap03"><span class="num">03</span>Model e Service</a>
+      <a href="#cap04"><span class="num">04</span>CRUD em memória</a>
+      <a href="#cap05"><span class="num">05</span>Roteamento</a>
+      <a href="#cap06"><span class="num">06</span>API REST (HttpClient)</a>
+      <a href="#cap07"><span class="num">07</span>Formulários</a>
+      <a href="#cap08"><span class="num">08</span>Extras e boas práticas</a>
+      <a href="#cap09"><span class="num">09</span>Roteiro de 3 horas</a>
+      <a href="#cap10"><span class="num">10</span>Erros comuns</a>
+      <a href="#cap11"><span class="num">11</span>Próximos passos</a>
+    </nav>
+
+    <div class="side-foot">
+      Material de apoio para minicurso.<br>
+      Angular 17 · Node 18 · Componentes standalone, signals e control flow.
+    </div>
+  </aside>
+
+  <!-- ===================== CONTEÚDO ===================== -->
+  <main class="content">
+    <article class="paper">
+      <div class="topbar"></div>
+
+
+
+<!-- ============ CAPA ============ -->
+
+<section id="capa">
+<div class="cover-author">Guia de Minicurso &mdash; Desenvolvimento Web</div>
+<div class="cover-mail">Material de apoio para participantes e instrutores</div>
+
+<p class="cover-tech">Angular</p>
+<p class="cover-title">Guia prático do iniciante</p>
+<p class="cover-lead">Este é um guia introdutório sobre o desenvolvimento para Web com
+TypeScript e o framework Angular (versão 17, compatível com Node.js 18 &mdash; usada no laboratório do curso).
+O material foi pensado para um minicurso de aproximadamente 3 horas, com foco em um
+CRUD completo, para pessoas que estão tendo o primeiro contato com o framework.</p>
+
+<div class="doc" style="margin-top:34px;">
+<b>Como usar este material</b><br>
+Ao longo do guia, blocos como este trazem links da documentação oficial do Angular
+(<a href="https://angular.dev">https://angular.dev</a>) para você se aprofundar em cada
+assunto. Todo o código foi escrito no padrão atual do Angular: <b>componentes standalone</b>,
+<b>signals</b> e o novo <b>control flow</b> (<code class="inline">@if</code>,
+<code class="inline">@for</code>).
+</div>
+
+<div class="warn" style="margin-top:14px;">
+<b>Sobre versões:</b> este guia usa <b>Angular 17</b>, que roda com <b>Node.js 18</b> (o que está instalado nas máquinas do laboratório). O Angular 17 já traz tudo que o curso usa: componentes standalone, signals e o control flow <code class="inline">@if</code>/<code class="inline">@for</code>. Se a turma tivesse uma versão mais antiga (15/16), alguns trechos mudam (NgModules e <code class="inline">*ngIf</code>/<code class="inline">*ngFor</code>).
+</div>
+
+<!-- ============ SUMÁRIO ============ -->
+</section>
+<section id="sumario">
+<h1 class="capitulo" data-tag="ÍNDICE">Sumário</h1>
+<div class="toc-list">
+  <a class="toc-row" href="#cap01">
+    <span class="toc-num">01</span>
+    <span class="toc-body">
+      <span class="toc-title">Preparando o ambiente e o projeto</span>
+      <span class="toc-sub">O que é o Angular e por que usá-lo · Pré-requisitos e instalação · Criar e rodar um projeto · Anatomia dos arquivos · Rodar em outra porta ou na rede</span>
+    </span>
+    <span class="toc-arrow">→</span>
+  </a>
+  <a class="toc-row" href="#cap02">
+    <span class="toc-num">02</span>
+    <span class="toc-body">
+      <span class="toc-title">Componentes, templates e data binding</span>
+      <span class="toc-sub">O que é um componente · Criar um componente · Interpolação e binding de propriedade · Binding de evento · Signals para estado · Two-way binding · Novo control flow (@if, @for)</span>
+    </span>
+    <span class="toc-arrow">→</span>
+  </a>
+  <a class="toc-row" href="#cap03">
+    <span class="toc-num">03</span>
+    <span class="toc-body">
+      <span class="toc-title">Modelo de dados e service</span>
+      <span class="toc-sub">Criar uma interface (o "model") · Criar um service · Injeção de dependência com inject()</span>
+    </span>
+    <span class="toc-arrow">→</span>
+  </a>
+  <a class="toc-row" href="#cap04">
+    <span class="toc-num">04</span>
+    <span class="toc-body">
+      <span class="toc-title">CRUD em memória (o coração do curso)</span>
+      <span class="toc-sub">Create (adicionar) · Read (listar) · Update (editar) · Delete (excluir) · Montando a tela completa</span>
+    </span>
+    <span class="toc-arrow">→</span>
+  </a>
+  <a class="toc-row" href="#cap05">
+    <span class="toc-num">05</span>
+    <span class="toc-body">
+      <span class="toc-title">Roteamento</span>
+      <span class="toc-sub">Configurar rotas · RouterLink e RouterOutlet · Parâmetros de rota</span>
+    </span>
+    <span class="toc-arrow">→</span>
+  </a>
+  <a class="toc-row" href="#cap06">
+    <span class="toc-num">06</span>
+    <span class="toc-body">
+      <span class="toc-title">Consumindo uma API REST com HttpClient</span>
+      <span class="toc-sub">provideHttpClient · GET, POST, PUT, DELETE · Estados de loading e erro</span>
+    </span>
+    <span class="toc-arrow">→</span>
+  </a>
+  <a class="toc-row" href="#cap07">
+    <span class="toc-num">07</span>
+    <span class="toc-body">
+      <span class="toc-title">Formulários</span>
+      <span class="toc-sub">Template-driven vs Reactive · Reactive Forms · Validação</span>
+    </span>
+    <span class="toc-arrow">→</span>
+  </a>
+  <a class="toc-row" href="#cap08">
+    <span class="toc-num">08</span>
+    <span class="toc-body">
+      <span class="toc-title">Extras e boas práticas</span>
+      <span class="toc-sub">Pipes · Estrutura de pastas · Build de produção · Comandos essenciais da CLI</span>
+    </span>
+    <span class="toc-arrow">→</span>
+  </a>
+  <a class="toc-row" href="#cap09">
+    <span class="toc-num">09</span>
+    <span class="toc-body">
+      <span class="toc-title">Roteiro sugerido para o minicurso de 3 horas</span>
+      <span class="toc-sub">Divisão de tempo por bloco · Recomendações para a apresentação</span>
+    </span>
+    <span class="toc-arrow">→</span>
+  </a>
+  <a class="toc-row" href="#cap10">
+    <span class="toc-num">10</span>
+    <span class="toc-body">
+      <span class="toc-title">Erros comuns de quem está começando</span>
+      <span class="toc-sub">Tabela de sintomas, causas e soluções</span>
+    </span>
+    <span class="toc-arrow">→</span>
+  </a>
+  <a class="toc-row" href="#cap11">
+    <span class="toc-num">11</span>
+    <span class="toc-body">
+      <span class="toc-title">Próximos passos</span>
+      <span class="toc-sub">Reactive Forms avançado · Comunicação entre componentes · Guards · Interceptors · UI · Testes · SSR</span>
+    </span>
+    <span class="toc-arrow">→</span>
+  </a>
+</div>
+</section>
+<section id="cap01">
+<h1 class="capitulo" data-tag="MÓDULO 01">Preparando o ambiente e o projeto</h1>
+<div class="mission">
+  <div class="card-title">🎯 MISSÃO 01 — COLOCAR O ANGULAR PARA RODAR</div>
+  <p>Ao final deste módulo, você terá um projeto Angular criado, executando no navegador e entenderá onde ficam os arquivos principais.</p>
+  <div class="badges"><span class="badge red">🎯 Objetivo</span><span class="badge blue">⏱️ 30 min</span></div>
+</div>
+
+
+<h2 class="secao">O que é o Angular e por que usá-lo</h2>
+<p>O <b>Angular</b> é um framework para construção de aplicações web mantido pelo Google.
+Ele é escrito em <b>TypeScript</b> (JavaScript com tipagem) e serve principalmente para
+criar <b>SPAs</b> (<i>Single Page Applications</i>) &mdash; aplicações que carregam uma vez
+e atualizam a tela dinamicamente, sem recarregar a página inteira a cada clique.</p>
+
+<p>A ideia central do Angular é dividir a interface em <b>componentes</b> reutilizáveis.
+Cada componente combina três coisas: a lógica (TypeScript), o visual (um template HTML) e o
+estilo (CSS). Além disso, o framework já traz "de fábrica" solução para roteamento,
+requisições HTTP, formulários e injeção de dependência, o que evita ter que escolher e
+juntar várias bibliotecas separadas.</p>
+
+<p>Comparado a alternativas como React e Vue, o Angular é considerado mais "opinativo":
+ele impõe uma estrutura e um jeito de fazer as coisas. Isso tende a facilitar a manutenção
+em projetos grandes e em times, porque todo mundo segue o mesmo padrão.</p>
+
+<h2 class="secao">Pré-requisitos e instalação</h2>
+<p>Antes de tudo, é preciso ter o <b>Node.js</b> instalado (que já traz o <b>npm</b>, o
+gerenciador de pacotes). Você pode conferir se já tem tudo instalado rodando no terminal:</p>
+
+<div class="codewrap"><pre>node --version
+npm --version</pre></div>
+
+<p>Com o Node.js pronto, instale o <b>Angular CLI</b> globalmente. A CLI (<i>Command Line
+Interface</i>) é a ferramenta de linha de comando que cria projetos, gera componentes, roda
+o servidor de desenvolvimento e faz o build da aplicação.</p>
+
+<div class="codewrap"><pre>npm install -g @angular/cli@17</pre></div>
+
+<p>Para verificar a instalação e a versão instalada:</p>
+
+<div class="codewrap"><pre>ng version</pre></div>
+
+<div class="doc">
+<b>Documentação</b><br>
+Guia de instalação e primeiros passos:
+<a href="https://angular.dev/installation">https://angular.dev/installation</a>
+</div>
+
+<h2 class="secao">Criar e rodar um projeto</h2>
+<p>Para criar um novo projeto, use o comando <code class="inline">ng new</code> seguido do
+nome do projeto. No caso deste guia, vamos chamar de "agenda" (uma pequena agenda de
+contatos que usaremos como exemplo no CRUD).</p>
+
+<div class="codewrap"><pre>ng new agenda</pre></div>
+<p class="small">Se a CLI global reclamar da versão do Node, crie o projeto sem depender da instalação global: <code class="inline">npx @angular/cli@17 new agenda</code>.</p>
+
+<p>A CLI vai fazer algumas perguntas: qual formato de folha de estilo usar (escolha
+<b>CSS</b> para simplificar) e se deseja habilitar <b>SSR/SSG</b> (renderização no servidor
+&mdash; pode responder <b>No</b> para um minicurso). Depois disso, ela cria a estrutura de
+pastas e já instala tudo automaticamente.</p>
+
+<p>Entre na pasta do projeto e inicie o servidor de desenvolvimento:</p>
+
+<div class="codewrap"><pre>cd agenda
+ng serve</pre></div>
+
+<p>Pronto! Agora acesse <code class="inline">http://localhost:4200/</code> no navegador para
+ver o projeto rodando. O servidor tem <b>live reload</b>: sempre que você salva um arquivo,
+a página recarrega sozinha com as mudanças.</p>
+
+<div class="doc">
+<b>Dica</b><br>
+Se quiser que a CLI não pergunte nada e já abra o navegador, use:
+<code class="inline">ng new agenda --style=css --ssr=false</code> (ou <code class="inline">npx @angular/cli@17 new agenda --style=css --ssr=false</code>) e depois
+<code class="inline">ng serve --open</code> (o <code class="inline">--open</code> ou
+<code class="inline">-o</code> abre o navegador automaticamente).
+</div>
+
+<h2 class="secao">Anatomia dos arquivos do projeto</h2>
+<p>Ao criar o projeto, o Angular gera vários arquivos e pastas. Nem tudo importa agora,
+então vamos aos que realmente interessam neste momento:</p>
+
+<div class="tablewrap"><table>
+<tr><th>Arquivo / pasta</th><th>Para que serve</th></tr>
+<tr><td><span class="file">src/main.ts</span></td><td>Ponto de entrada da aplicação. É ele que "liga" (faz o bootstrap) do componente raiz.</td></tr>
+<tr><td><span class="file">src/index.html</span></td><td>A única página HTML de verdade. É onde o Angular injeta a aplicação.</td></tr>
+<tr><td><span class="file">src/app/app.config.ts</span></td><td>Onde ficam os <i>providers</i> globais (rotas, HttpClient, etc). Substitui o antigo <code class="inline">AppModule</code>.</td></tr>
+<tr><td><span class="file">src/app/app.routes.ts</span></td><td>Onde declaramos as rotas da aplicação.</td></tr>
+<tr><td><span class="file">src/app/app.ts</span></td><td>O componente raiz (lógica em TypeScript). Em versões antigas: <code class="inline">app.component.ts</code>.</td></tr>
+<tr><td><span class="file">src/app/app.html</span></td><td>Template (HTML) do componente raiz.</td></tr>
+<tr><td><span class="file">src/app/app.css</span></td><td>Estilos do componente raiz.</td></tr>
+<tr><td><span class="file">angular.json</span></td><td>Configuração geral do projeto (build, assets, etc).</td></tr>
+<tr><td><span class="file">package.json</span></td><td>Lista de dependências e scripts do projeto (como <code class="inline">npm start</code>).</td></tr>
+</table></div>
+
+<div class="warn">
+<b>Atenção à nomenclatura entre versões.</b> No <b>Angular 17</b> (usado neste guia) os arquivos do componente raiz se chamam <code class="inline">app.component.ts</code>, <code class="inline">app.component.html</code> e <code class="inline">app.component.css</code>. A partir do Angular 20 eles passaram a se chamar <code class="inline">app.ts</code>, <code class="inline">app.html</code> e <code class="inline">app.css</code>. O conteúdo é equivalente; muda só o nome do arquivo.
+</div>
+
+<p>Vamos abrir o <span class="file">src/app/app.ts</span> para entender a estrutura mínima
+de um componente. Ele é mais ou menos assim:</p>
+
+<div class="codewrap"><pre><span class="kw">import</span> { Component } <span class="kw">from</span> <span class="st">'@angular/core'</span>;
+
+@<span class="fn">Component</span>({
+  selector: <span class="st">'app-root'</span>,
+  templateUrl: <span class="st">'./app.html'</span>,
+  styleUrl: <span class="st">'./app.css'</span>,
+})
+<span class="kw">export class</span> <span class="ty">App</span> {
+  <span class="cm">// A lógica do componente vai aqui</span>
+  titulo = <span class="st">'agenda'</span>;
+}</pre></div>
+
+<p>Repare nos três pedaços importantes do decorador <code class="inline">@Component</code>:
+o <b>selector</b> (a "tag" HTML que representa esse componente, aqui
+<code class="inline">&lt;app-root&gt;</code>), o <b>templateUrl</b> (o arquivo HTML do
+visual) e o <b>styleUrl</b> (o arquivo CSS). A classe <code class="inline">App</code>
+guarda os dados e a lógica.</p>
+
+<h2 class="secao">Rodar em outra porta ou na rede local</h2>
+<p>Por padrão o servidor sobe na porta 4200. Você pode mudar a porta ou expor o projeto na
+rede local (para acessar de outro dispositivo, como o celular) com estes comandos:</p>
+
+<div class="codewrap"><pre><span class="cm"># Rodar em outra porta</span>
+ng serve --port 4300
+
+<span class="cm"># Expor na rede local (acessível pelo IP da máquina)</span>
+ng serve --host 0.0.0.0</pre></div>
+
+
+
+
+<!-- ============ CAPÍTULO 2 ============ -->
+
+<div class="chapter-nav"><a class="prev disabled"><div class="dir">← Anterior</div><div class="ttl">—</div></a><a class="next" href="#cap02"><div class="dir">Próximo →</div><div class="ttl">02 · Componentes e binding</div></a></div>
+</section>
+<section id="cap02">
+<h1 class="capitulo" data-tag="MÓDULO 02">Componentes, templates e data binding</h1>
+<div class="mission">
+  <div class="card-title">🎯 MISSÃO 02 — FAZER A INTERFACE REAGIR</div>
+  <p>Você vai criar componentes, exibir dados, responder a cliques, trabalhar com signals e controlar o que aparece na tela.</p>
+  <div class="badges"><span class="badge red">🎯 Objetivo</span><span class="badge blue">⏱️ 40 min</span></div>
+</div>
+
+
+<h2 class="secao">O que é um componente</h2>
+<p>Um <b>componente</b> é o bloco de construção fundamental de uma aplicação Angular. Pense
+nele como um "pedaço da tela" com comportamento próprio: um menu, um card de contato, um
+formulário. Cada componente reúne três arquivos: a <b>classe TypeScript</b> (dados e
+lógica), o <b>template HTML</b> (o que aparece na tela) e o <b>CSS</b> (estilo, isolado
+daquele componente).</p>
+
+<p>A tela final é uma árvore de componentes: o componente raiz contém outros componentes,
+que por sua vez contêm outros. Essa composição é o que torna a interface organizada e
+reutilizável.</p>
+
+<h2 class="secao">Criar um componente</h2>
+<p>Nunca crie os arquivos na mão &mdash; use a CLI, que já gera tudo no padrão certo e
+registra o componente. Vamos criar um componente chamado <code class="inline">contatos</code>:</p>
+
+<div class="codewrap"><pre>ng generate component contatos</pre></div>
+
+<p>Pode abreviar para <code class="inline">ng g c contatos</code>. A CLI cria uma pasta
+<span class="file">src/app/contatos/</span> com quatro arquivos:
+<code class="inline">contatos.ts</code>, <code class="inline">contatos.html</code>,
+<code class="inline">contatos.css</code> e um arquivo de teste
+(<code class="inline">contatos.spec.ts</code>).</p>
+
+<p>O arquivo <code class="inline">contatos.ts</code> gerado se parece com isto:</p>
+
+<div class="codewrap"><pre><span class="kw">import</span> { Component } <span class="kw">from</span> <span class="st">'@angular/core'</span>;
+
+@<span class="fn">Component</span>({
+  selector: <span class="st">'app-contatos'</span>,
+  imports: [],
+  templateUrl: <span class="st">'./contatos.html'</span>,
+  styleUrl: <span class="st">'./contatos.css'</span>,
+})
+<span class="kw">export class</span> <span class="ty">Contatos</span> {
+
+}</pre></div>
+
+<p>Para exibir esse componente dentro do componente raiz, coloque a tag do seu seletor
+(<code class="inline">&lt;app-contatos&gt;</code>) no template <span class="file">app.html</span>
+e importe o componente na lista <code class="inline">imports</code> do
+<span class="file">app.ts</span>:</p>
+
+<div class="codewrap"><pre><span class="cm">// app.ts</span>
+<span class="kw">import</span> { Component } <span class="kw">from</span> <span class="st">'@angular/core'</span>;
+<span class="kw">import</span> { Contatos } <span class="kw">from</span> <span class="st">'./contatos/contatos'</span>;
+
+@<span class="fn">Component</span>({
+  selector: <span class="st">'app-root'</span>,
+  imports: [Contatos],   <span class="cm">// componente standalone importado aqui</span>
+  templateUrl: <span class="st">'./app.html'</span>,
+  styleUrl: <span class="st">'./app.css'</span>,
+})
+<span class="kw">export class</span> <span class="ty">App</span> {}</pre></div>
+
+<div class="codewrap"><pre><span class="cm">&lt;!-- app.html --&gt;</span>
+&lt;h1&gt;Minha Agenda&lt;/h1&gt;
+&lt;app-contatos&gt;&lt;/app-contatos&gt;</pre></div>
+
+<div class="doc">
+<b>Componentes standalone</b><br>
+No Angular 17 os componentes já podem ser <i>standalone</i> (e viram padrão a partir do 19): eles
+se importam diretamente uns aos outros pela propriedade <code class="inline">imports</code>,
+sem precisar de <code class="inline">NgModule</code>. Mais em
+<a href="https://angular.dev/guide/components">https://angular.dev/guide/components</a>
+</div>
+
+<h2 class="secao">Interpolação: mostrar dados na tela</h2>
+<p>A forma mais simples de exibir um dado do componente no template é a <b>interpolação</b>,
+com chaves duplas <code class="inline">{{ }}</code>. Tudo que estiver dentro das chaves é
+avaliado como uma expressão TypeScript e o resultado aparece na tela.</p>
+
+<div class="codewrap"><pre><span class="cm">// contatos.ts</span>
+<span class="kw">export class</span> <span class="ty">Contatos</span> {
+  titulo = <span class="st">'Lista de contatos'</span>;
+  total = <span class="nm">3</span>;
+}</pre></div>
+
+<div class="codewrap"><pre><span class="cm">&lt;!-- contatos.html --&gt;</span>
+&lt;h2&gt;{{ titulo }}&lt;/h2&gt;
+&lt;p&gt;Você tem {{ total }} contatos cadastrados.&lt;/p&gt;
+&lt;p&gt;Ano que vem serão {{ total + <span class="nm">1</span> }}.&lt;/p&gt;</pre></div>
+
+<h2 class="secao">Property binding: passar valores para atributos</h2>
+<p>Quando você quer definir um <b>atributo ou propriedade</b> de um elemento HTML a partir de
+um dado do componente, usa colchetes <code class="inline">[ ]</code>. Isso é o
+<i>property binding</i>.</p>
+
+<div class="codewrap"><pre><span class="cm">// contatos.ts</span>
+<span class="kw">export class</span> <span class="ty">Contatos</span> {
+  urlFoto = <span class="st">'https://exemplo.com/avatar.png'</span>;
+  desabilitado = <span class="kw">true</span>;
+}</pre></div>
+
+<div class="codewrap"><pre><span class="cm">&lt;!-- contatos.html --&gt;</span>
+&lt;img [src]=<span class="st">"urlFoto"</span> alt=<span class="st">"Avatar"</span>&gt;
+&lt;button [disabled]=<span class="st">"desabilitado"</span>&gt;Salvar&lt;/button&gt;</pre></div>
+
+<p>A diferença para a interpolação: com <code class="inline">[src]="urlFoto"</code> o valor
+de <code class="inline">urlFoto</code> é atribuído diretamente à propriedade. Escrever
+<code class="inline">src="{{ urlFoto }}"</code> também funcionaria para strings, mas o
+<i>binding</i> com colchetes é o padrão e funciona para qualquer tipo (booleano, número,
+objeto).</p>
+
+<h2 class="secao">Event binding: reagir a ações do usuário</h2>
+<p>Para reagir a eventos (clique, digitação, envio de formulário), usamos parênteses
+<code class="inline">( )</code>. É o <i>event binding</i>. Dentro dos parênteses vai o nome
+do evento e o valor é o método a ser chamado.</p>
+
+<div class="codewrap"><pre><span class="cm">// contatos.ts</span>
+<span class="kw">export class</span> <span class="ty">Contatos</span> {
+  <span class="fn">saudar</span>() {
+    <span class="ty">alert</span>(<span class="st">'Olá!'</span>);
+  }
+}</pre></div>
+
+<div class="codewrap"><pre><span class="cm">&lt;!-- contatos.html --&gt;</span>
+&lt;button (click)=<span class="st">"saudar()"</span>&gt;Clique aqui&lt;/button&gt;</pre></div>
+
+<p>Resumindo os três símbolos, que são a base de tudo em Angular:</p>
+<div class="tablewrap"><table>
+<tr><th>Sintaxe</th><th>Nome</th><th>Direção</th><th>Uso típico</th></tr>
+<tr><td><code class="inline">{{ }}</code></td><td>Interpolação</td><td>Componente &rarr; Tela</td><td>Mostrar texto</td></tr>
+<tr><td><code class="inline">[ ]</code></td><td>Property binding</td><td>Componente &rarr; Tela</td><td>Definir atributo/propriedade</td></tr>
+<tr><td><code class="inline">( )</code></td><td>Event binding</td><td>Tela &rarr; Componente</td><td>Reagir a eventos</td></tr>
+</table></div>
+
+<h2 class="secao">Signals: o jeito moderno de guardar estado</h2>
+<p>Um <b>signal</b> é um "valor reativo": um contêiner para um dado que, quando muda, avisa
+automaticamente a tela para se atualizar. Signals são a forma recomendada de guardar estado
+no Angular moderno (a chamada era <i>signal-first</i>). Para usar, importe
+<code class="inline">signal</code> de <code class="inline">@angular/core</code>.</p>
+
+<div class="codewrap"><pre><span class="cm">// contatos.ts</span>
+<span class="kw">import</span> { Component, signal } <span class="kw">from</span> <span class="st">'@angular/core'</span>;
+
+@<span class="fn">Component</span>({ <span class="cm">/* ... */</span> })
+<span class="kw">export class</span> <span class="ty">Contatos</span> {
+  <span class="cm">// cria um signal com valor inicial 0</span>
+  contador = <span class="fn">signal</span>(<span class="nm">0</span>);
+
+  <span class="fn">incrementar</span>() {
+    <span class="cm">// .update() muda o valor com base no valor anterior</span>
+    <span class="kw">this</span>.contador.<span class="fn">update</span>(v =&gt; v + <span class="nm">1</span>);
+  }
+
+  <span class="fn">zerar</span>() {
+    <span class="cm">// .set() define um novo valor diretamente</span>
+    <span class="kw">this</span>.contador.<span class="fn">set</span>(<span class="nm">0</span>);
+  }
+}</pre></div>
+
+<p>No template, para <b>ler</b> o valor de um signal, você o chama como uma função (com
+parênteses):</p>
+
+<div class="codewrap"><pre><span class="cm">&lt;!-- contatos.html --&gt;</span>
+&lt;p&gt;Contador: {{ contador() }}&lt;/p&gt;
+&lt;button (click)=<span class="st">"incrementar()"</span>&gt;+1&lt;/button&gt;
+&lt;button (click)=<span class="st">"zerar()"</span>&gt;Zerar&lt;/button&gt;</pre></div>
+
+<div class="warn">
+<b>Detalhe que confunde iniciantes:</b> no template, signal se lê com parênteses &mdash;
+<code class="inline">contador()</code>, e não <code class="inline">contador</code>. Um valor
+"comum" (não-signal) se lê sem parênteses. Esquecer o <code class="inline">()</code> em um
+signal é um dos erros mais frequentes de quem está começando.
+</div>
+
+<h3 class="sub">computed: valores derivados</h3>
+<p>Muitas vezes você precisa de um valor que <b>depende</b> de outro. Para isso existe o
+<code class="inline">computed</code>: ele cria um signal calculado que se atualiza sozinho
+quando os signals de que depende mudam.</p>
+
+<div class="codewrap"><pre><span class="kw">import</span> { signal, computed } <span class="kw">from</span> <span class="st">'@angular/core'</span>;
+
+<span class="kw">export class</span> <span class="ty">Contatos</span> {
+  preco = <span class="fn">signal</span>(<span class="nm">100</span>);
+  quantidade = <span class="fn">signal</span>(<span class="nm">2</span>);
+
+  <span class="cm">// recalcula automaticamente quando preco ou quantidade mudam</span>
+  total = <span class="fn">computed</span>(() =&gt; <span class="kw">this</span>.preco() * <span class="kw">this</span>.quantidade());
+}</pre></div>
+
+<div class="doc">
+<b>Documentação</b><br>
+Guia completo de Signals:
+<a href="https://angular.dev/guide/signals">https://angular.dev/guide/signals</a>
+</div>
+
+<h2 class="secao">Two-way binding: input ligado a um dado</h2>
+<p>O <b>two-way binding</b> (mão dupla) mantém um campo de formulário e um dado sempre
+sincronizados: se o usuário digita, o dado muda; se o dado muda no código, o campo atualiza.
+A sintaxe é <code class="inline">[( )]</code> (colchetes com parênteses, apelidada de
+"banana in a box"). Para campos comuns, usa-se <code class="inline">ngModel</code>, que exige
+importar o <code class="inline">FormsModule</code>.</p>
+
+<div class="codewrap"><pre><span class="cm">// contatos.ts</span>
+<span class="kw">import</span> { Component } <span class="kw">from</span> <span class="st">'@angular/core'</span>;
+<span class="kw">import</span> { FormsModule } <span class="kw">from</span> <span class="st">'@angular/forms'</span>;
+
+@<span class="fn">Component</span>({
+  selector: <span class="st">'app-contatos'</span>,
+  imports: [FormsModule],   <span class="cm">// necessário para o ngModel</span>
+  templateUrl: <span class="st">'./contatos.html'</span>,
+})
+<span class="kw">export class</span> <span class="ty">Contatos</span> {
+  nome = <span class="st">''</span>;
+}</pre></div>
+
+<div class="codewrap"><pre><span class="cm">&lt;!-- contatos.html --&gt;</span>
+&lt;input [(ngModel)]=<span class="st">"nome"</span> placeholder=<span class="st">"Digite seu nome"</span>&gt;
+&lt;p&gt;Olá, {{ nome }}!&lt;/p&gt;</pre></div>
+
+<div class="warn">
+<b>Cuidado ao misturar ngModel com signals.</b> Não use <code class="inline">[(ngModel)]</code>
+diretamente em um <i>signal writable</i> &mdash; isso quebra o signal em tempo de execução.
+Para campo ligado a signal, prefira <b>Reactive Forms</b> (capítulo de Formulários) ou faça o
+binding em uma propriedade comum. Com signals, o padrão two-way próprio é o
+<code class="inline">model()</code>, usado ao criar componentes reutilizáveis.
+</div>
+
+<h2 class="secao">O novo control flow: @if e @for</h2>
+<p>Para exibir conteúdo condicionalmente ou repetir uma lista, o Angular moderno usa um
+<b>control flow</b> embutido no template, com <code class="inline">@if</code>,
+<code class="inline">@else</code> e <code class="inline">@for</code>. Ele substitui as antigas
+diretivas <code class="inline">*ngIf</code> e <code class="inline">*ngFor</code> e não precisa
+de import nenhum.</p>
+
+<h3 class="sub">@if / @else &mdash; condicional</h3>
+<div class="codewrap"><pre><span class="cm">&lt;!-- contatos.html --&gt;</span>
+@if (total() &gt; <span class="nm">0</span>) {
+  &lt;p&gt;Você tem {{ total() }} contatos.&lt;/p&gt;
+} @else {
+  &lt;p&gt;Nenhum contato cadastrado ainda.&lt;/p&gt;
+}</pre></div>
+
+<h3 class="sub">@for &mdash; repetição</h3>
+<p>O <code class="inline">@for</code> percorre uma lista. Ele <b>exige</b> a cláusula
+<code class="inline">track</code>, que diz ao Angular como identificar cada item (para
+atualizar a tela com eficiência). Use um campo único como <code class="inline">id</code>, ou
+<code class="inline">$index</code> se não houver id.</p>
+
+<div class="codewrap"><pre><span class="cm">// contatos.ts</span>
+<span class="kw">export class</span> <span class="ty">Contatos</span> {
+  lista = <span class="fn">signal</span>([
+    { id: <span class="nm">1</span>, nome: <span class="st">'Ana'</span> },
+    { id: <span class="nm">2</span>, nome: <span class="st">'Bruno'</span> },
+    { id: <span class="nm">3</span>, nome: <span class="st">'Carla'</span> },
+  ]);
+}</pre></div>
+
+<div class="codewrap"><pre><span class="cm">&lt;!-- contatos.html --&gt;</span>
+&lt;ul&gt;
+  @for (c <span class="kw">of</span> lista(); track c.id) {
+    &lt;li&gt;{{ c.nome }}&lt;/li&gt;
+  } @empty {
+    &lt;li&gt;Lista vazia.&lt;/li&gt;
+  }
+&lt;/ul&gt;</pre></div>
+
+<p>A cláusula opcional <code class="inline">@empty</code> mostra um conteúdo quando a lista
+está vazia &mdash; muito útil e prático.</p>
+
+<div class="warn">
+<b>Versões antigas (15/16):</b> se a turma usar uma versão anterior ao control flow novo,
+o equivalente é <code class="inline">&lt;p *ngIf="total &gt; 0"&gt;</code> e
+<code class="inline">&lt;li *ngFor="let c of lista"&gt;</code>, importando o
+<code class="inline">CommonModule</code>. O guia adota o padrão novo, que é o recomendado.
+</div>
+
+
+
+
+<!-- ============ CAPÍTULO 3 ============ -->
+
+<div class="chapter-nav"><a class="prev" href="#cap01"><div class="dir">← Anterior</div><div class="ttl">01 · Ambiente e projeto</div></a><a class="next" href="#cap03"><div class="dir">Próximo →</div><div class="ttl">03 · Model e Service</div></a></div>
+</section>
+<section id="cap03">
+<h1 class="capitulo" data-tag="MÓDULO 03">Modelo de dados e service</h1>
+<div class="mission">
+  <div class="card-title">🎯 MISSÃO 03 — SEPARAR TELA E DADOS</div>
+  <p>Vamos preparar a estrutura que permite transformar a tela em uma aplicação de verdade: model + service + injeção de dependência.</p>
+  <div class="badges"><span class="badge red">🎯 Objetivo</span><span class="badge blue">⏱️ 15 min</span></div>
+</div>
+
+
+<p>Antes de construir o CRUD, precisamos de duas coisas: um <b>modelo</b> que descreve como
+é um contato, e um <b>service</b> que guarda e manipula a lista de contatos.</p>
+
+<h2 class="secao">Criar uma interface (o "model")</h2>
+<p>Em Angular, o modelo de um dado é normalmente uma <b>interface</b> TypeScript. Ela apenas
+descreve o formato do objeto: quais campos ele tem e de que tipo. Isso dá autocomplete e
+evita erros (por exemplo, escrever <code class="inline">c.nomee</code> por engano). Crie o
+arquivo <span class="file">src/app/models/contato.ts</span>:</p>
+
+<div class="codewrap"><pre><span class="cm">// models/contato.ts</span>
+<span class="kw">export interface</span> <span class="ty">Contato</span> {
+  id: <span class="ty">number</span>;
+  nome: <span class="ty">string</span>;
+  email: <span class="ty">string</span>;
+  telefone: <span class="ty">string</span>;
+}</pre></div>
+
+<p>A partir de agora, sempre que uma variável for um contato, tipamos com
+<code class="inline">Contato</code> e o editor nos ajuda a não errar os nomes dos campos.</p>
+
+<h2 class="secao">Criar um service</h2>
+<p>Um <b>service</b> é uma classe que concentra a lógica de dados e regras de negócio, para
+que os componentes fiquem focados só na tela. É nele que vamos guardar a lista de contatos e
+os métodos de adicionar, editar e remover. Gere com a CLI:</p>
+
+<div class="codewrap"><pre>ng generate service services/contato</pre></div>
+
+<p>Pode abreviar para <code class="inline">ng g s services/contato</code>. Isso cria
+<span class="file">src/app/services/contato.ts</span> com esta base:</p>
+
+<div class="codewrap"><pre><span class="kw">import</span> { Injectable } <span class="kw">from</span> <span class="st">'@angular/core'</span>;
+
+@<span class="fn">Injectable</span>({
+  providedIn: <span class="st">'root'</span>,
+})
+<span class="kw">export class</span> <span class="ty">ContatoService</span> {
+
+}</pre></div>
+
+<p>O decorador <code class="inline">@Injectable({ providedIn: 'root' })</code> registra o
+service de forma global: existe uma única instância dele em toda a aplicação (padrão
+<i>singleton</i>), e qualquer componente pode pedi-la.</p>
+
+<div class="doc">
+<b>Documentação</b><br>
+Services e injeção de dependência:
+<a href="https://angular.dev/guide/di">https://angular.dev/guide/di</a>
+</div>
+
+<h2 class="secao">Injeção de dependência com inject()</h2>
+<p>Para usar o service dentro de um componente, nós o <b>injetamos</b>. A forma moderna é a
+função <code class="inline">inject()</code>. O Angular cuida de entregar a instância pronta;
+não precisamos criar o service com <code class="inline">new</code>.</p>
+
+<div class="codewrap"><pre><span class="cm">// contatos.ts</span>
+<span class="kw">import</span> { Component, inject } <span class="kw">from</span> <span class="st">'@angular/core'</span>;
+<span class="kw">import</span> { ContatoService } <span class="kw">from</span> <span class="st">'../services/contato'</span>;
+
+@<span class="fn">Component</span>({ <span class="cm">/* ... */</span> })
+<span class="kw">export class</span> <span class="ty">Contatos</span> {
+  <span class="cm">// injeta a instância global do service</span>
+  <span class="kw">private</span> service = <span class="fn">inject</span>(<span class="ty">ContatoService</span>);
+}</pre></div>
+
+<div class="doc">
+<b>Alternativa (construtor)</b><br>
+Também é possível injetar pelo construtor:
+<code class="inline">constructor(private service: ContatoService) {}</code>. As duas formas
+funcionam; <code class="inline">inject()</code> é a recomendada nas versões recentes.
+</div>
+
+
+<!-- ============ CAPÍTULO 4 ============ -->
+
+<div class="chapter-nav"><a class="prev" href="#cap02"><div class="dir">← Anterior</div><div class="ttl">02 · Componentes e binding</div></a><a class="next" href="#cap04"><div class="dir">Próximo →</div><div class="ttl">04 · CRUD em memória</div></a></div>
+</section>
+<section id="cap04">
+<h1 class="capitulo" data-tag="MÓDULO 04">CRUD em memória (o coração do curso)</h1>
+<div class="mission">
+  <div class="card-title">🔥 MISSÃO 04 — CONSTRUIR O CRUD</div>
+  <p>Este é o marco principal. Você vai criar, listar, editar e excluir contatos sem backend.</p>
+  <div class="badges"><span class="badge red">🎯 Objetivo</span><span class="badge blue">⏱️ 55 min</span></div>
+</div>
+
+
+<p>Chegamos à parte central. <b>CRUD</b> é a sigla para as quatro operações básicas com
+dados: <b>C</b>reate (criar), <b>R</b>ead (ler/listar), <b>U</b>pdate (atualizar) e
+<b>D</b>elete (excluir). Para o minicurso, vamos guardar os dados <b>em memória</b> (num
+array dentro do service), sem backend. Isso deixa o foco no Angular. No capítulo seguinte
+mostramos como conectar a uma API REST de verdade.</p>
+
+<h2 class="secao">O service completo com as operações CRUD</h2>
+<p>Vamos preencher o <span class="file">services/contato.ts</span>. Usamos um
+<code class="inline">signal</code> para a lista, de modo que qualquer tela que a use se
+atualize sozinha quando ela mudar.</p>
+
+<div class="codewrap"><pre><span class="cm">// services/contato.ts</span>
+<span class="kw">import</span> { Injectable, signal } <span class="kw">from</span> <span class="st">'@angular/core'</span>;
+<span class="kw">import</span> { Contato } <span class="kw">from</span> <span class="st">'../models/contato'</span>;
+
+@<span class="fn">Injectable</span>({ providedIn: <span class="st">'root'</span> })
+<span class="kw">export class</span> <span class="ty">ContatoService</span> {
+
+  <span class="cm">// lista de contatos guardada em memória, como signal</span>
+  <span class="kw">private</span> contatos = <span class="fn">signal</span>&lt;<span class="ty">Contato</span>[]&gt;([
+    { id: <span class="nm">1</span>, nome: <span class="st">'Ana Souza'</span>,  email: <span class="st">'ana@email.com'</span>,   telefone: <span class="st">'44 99999-0001'</span> },
+    { id: <span class="nm">2</span>, nome: <span class="st">'Bruno Lima'</span>, email: <span class="st">'bruno@email.com'</span>, telefone: <span class="st">'44 99999-0002'</span> },
+  ]);
+
+  <span class="cm">// controla o próximo id a ser usado</span>
+  <span class="kw">private</span> proximoId = <span class="nm">3</span>;
+
+  <span class="cm">// READ: devolve o signal para a tela ler (somente leitura)</span>
+  <span class="fn">listar</span>() {
+    <span class="kw">return</span> <span class="kw">this</span>.contatos.<span class="fn">asReadonly</span>();
+  }
+
+  <span class="cm">// READ por id: busca um único contato</span>
+  <span class="fn">buscarPorId</span>(id: <span class="ty">number</span>): <span class="ty">Contato</span> | <span class="kw">undefined</span> {
+    <span class="kw">return</span> <span class="kw">this</span>.contatos().<span class="fn">find</span>(c =&gt; c.id === id);
+  }
+
+  <span class="cm">// CREATE: adiciona um novo contato</span>
+  <span class="fn">adicionar</span>(dados: <span class="ty">Omit</span>&lt;<span class="ty">Contato</span>, <span class="st">'id'</span>&gt;) {
+    <span class="kw">const</span> novo: <span class="ty">Contato</span> = { id: <span class="kw">this</span>.proximoId++, ...dados };
+    <span class="kw">this</span>.contatos.<span class="fn">update</span>(lista =&gt; [...lista, novo]);
+  }
+
+  <span class="cm">// UPDATE: atualiza um contato existente pelo id</span>
+  <span class="fn">atualizar</span>(atualizado: <span class="ty">Contato</span>) {
+    <span class="kw">this</span>.contatos.<span class="fn">update</span>(lista =&gt;
+      lista.<span class="fn">map</span>(c =&gt; c.id === atualizado.id ? atualizado : c)
+    );
+  }
+
+  <span class="cm">// DELETE: remove um contato pelo id</span>
+  <span class="fn">remover</span>(id: <span class="ty">number</span>) {
+    <span class="kw">this</span>.contatos.<span class="fn">update</span>(lista =&gt; lista.<span class="fn">filter</span>(c =&gt; c.id !== id));
+  }
+}</pre></div>
+
+<p>Repare no padrão dos métodos que alteram a lista: sempre usamos
+<code class="inline">.update()</code> criando um <b>novo array</b> (com
+<code class="inline">[...lista]</code>, <code class="inline">.map()</code> ou
+<code class="inline">.filter()</code>), em vez de modificar o array existente. Isso é
+importante para os signals detectarem a mudança corretamente.</p>
+
+<div class="tablewrap"><table>
+<tr><th>Operação</th><th>Método</th><th>Técnica de array</th></tr>
+<tr><td>Create</td><td><code class="inline">adicionar()</code></td><td>espalhar e acrescentar: <code class="inline">[...lista, novo]</code></td></tr>
+<tr><td>Read</td><td><code class="inline">listar()</code> / <code class="inline">buscarPorId()</code></td><td>ler o signal / <code class="inline">.find()</code></td></tr>
+<tr><td>Update</td><td><code class="inline">atualizar()</code></td><td><code class="inline">.map()</code> trocando o item</td></tr>
+<tr><td>Delete</td><td><code class="inline">remover()</code></td><td><code class="inline">.filter()</code> removendo o item</td></tr>
+</table></div>
+
+<h2 class="secao">Read: listar os contatos na tela</h2>
+<p>No componente, injetamos o service e guardamos a lista. Como
+<code class="inline">listar()</code> devolve um signal, podemos lê-lo direto no template.</p>
+
+<div class="codewrap"><pre><span class="cm">// contatos.ts</span>
+<span class="kw">import</span> { Component, inject } <span class="kw">from</span> <span class="st">'@angular/core'</span>;
+<span class="kw">import</span> { ContatoService } <span class="kw">from</span> <span class="st">'../services/contato'</span>;
+
+@<span class="fn">Component</span>({
+  selector: <span class="st">'app-contatos'</span>,
+  imports: [],
+  templateUrl: <span class="st">'./contatos.html'</span>,
+  styleUrl: <span class="st">'./contatos.css'</span>,
+})
+<span class="kw">export class</span> <span class="ty">Contatos</span> {
+  <span class="kw">private</span> service = <span class="fn">inject</span>(<span class="ty">ContatoService</span>);
+
+  <span class="cm">// signal com a lista atual de contatos</span>
+  contatos = <span class="kw">this</span>.service.<span class="fn">listar</span>();
+
+  <span class="fn">excluir</span>(id: <span class="ty">number</span>) {
+    <span class="kw">this</span>.service.<span class="fn">remover</span>(id);
+  }
+}</pre></div>
+
+<div class="codewrap"><pre><span class="cm">&lt;!-- contatos.html --&gt;</span>
+&lt;h2&gt;Contatos&lt;/h2&gt;
+
+&lt;table&gt;
+  &lt;tr&gt;
+    &lt;th&gt;Nome&lt;/th&gt;&lt;th&gt;E-mail&lt;/th&gt;&lt;th&gt;Telefone&lt;/th&gt;&lt;th&gt;Ações&lt;/th&gt;
+  &lt;/tr&gt;
+
+  @for (c <span class="kw">of</span> contatos(); track c.id) {
+    &lt;tr&gt;
+      &lt;td&gt;{{ c.nome }}&lt;/td&gt;
+      &lt;td&gt;{{ c.email }}&lt;/td&gt;
+      &lt;td&gt;{{ c.telefone }}&lt;/td&gt;
+      &lt;td&gt;
+        &lt;button (click)=<span class="st">"excluir(c.id)"</span>&gt;Excluir&lt;/button&gt;
+      &lt;/td&gt;
+    &lt;/tr&gt;
+  } @empty {
+    &lt;tr&gt;&lt;td colspan=<span class="st">"4"</span>&gt;Nenhum contato cadastrado.&lt;/td&gt;&lt;/tr&gt;
+  }
+&lt;/table&gt;</pre></div>
+
+<p>Assim que a tela carrega, ela já mostra os dois contatos iniciais do service. E como a
+lista é um signal, ao excluir um contato a tabela some com ele automaticamente &mdash; sem
+nenhum código extra de atualização.</p>
+
+<h2 class="secao">Create: adicionar um novo contato</h2>
+<p>Vamos criar um pequeno formulário na mesma tela. Usamos
+<code class="inline">[(ngModel)]</code> em propriedades comuns para capturar o que o usuário
+digita, e um método que chama <code class="inline">adicionar()</code> do service.</p>
+
+<div class="codewrap"><pre><span class="cm">// contatos.ts (trechos adicionados)</span>
+<span class="kw">import</span> { FormsModule } <span class="kw">from</span> <span class="st">'@angular/forms'</span>;
+
+@<span class="fn">Component</span>({
+  <span class="cm">/* ... */</span>
+  imports: [FormsModule],   <span class="cm">// habilita o ngModel</span>
+})
+<span class="kw">export class</span> <span class="ty">Contatos</span> {
+  <span class="kw">private</span> service = <span class="fn">inject</span>(<span class="ty">ContatoService</span>);
+  contatos = <span class="kw">this</span>.service.<span class="fn">listar</span>();
+
+  <span class="cm">// campos do formulário</span>
+  nome = <span class="st">''</span>;
+  email = <span class="st">''</span>;
+  telefone = <span class="st">''</span>;
+
+  <span class="fn">salvar</span>() {
+    <span class="cm">// validação simples: nome obrigatório</span>
+    <span class="kw">if</span> (!<span class="kw">this</span>.nome.<span class="fn">trim</span>()) <span class="kw">return</span>;
+
+    <span class="kw">this</span>.service.<span class="fn">adicionar</span>({
+      nome: <span class="kw">this</span>.nome,
+      email: <span class="kw">this</span>.email,
+      telefone: <span class="kw">this</span>.telefone,
+    });
+
+    <span class="cm">// limpa o formulário</span>
+    <span class="kw">this</span>.nome = <span class="st">''</span>;
+    <span class="kw">this</span>.email = <span class="st">''</span>;
+    <span class="kw">this</span>.telefone = <span class="st">''</span>;
+  }
+
+  <span class="fn">excluir</span>(id: <span class="ty">number</span>) {
+    <span class="kw">this</span>.service.<span class="fn">remover</span>(id);
+  }
+}</pre></div>
+
+<div class="codewrap"><pre><span class="cm">&lt;!-- contatos.html (formulário acima da tabela) --&gt;</span>
+&lt;h3&gt;Novo contato&lt;/h3&gt;
+&lt;input [(ngModel)]=<span class="st">"nome"</span>     placeholder=<span class="st">"Nome"</span>&gt;
+&lt;input [(ngModel)]=<span class="st">"email"</span>    placeholder=<span class="st">"E-mail"</span>&gt;
+&lt;input [(ngModel)]=<span class="st">"telefone"</span> placeholder=<span class="st">"Telefone"</span>&gt;
+&lt;button (click)=<span class="st">"salvar()"</span>&gt;Adicionar&lt;/button&gt;</pre></div>
+
+<p>Ao clicar em "Adicionar", o service cria o contato com um novo id e o inclui na lista. A
+tabela, por reagir ao signal, mostra a nova linha imediatamente.</p>
+
+<h2 class="secao">Update: editar um contato existente</h2>
+<p>A edição reaproveita o mesmo formulário. A ideia: ao clicar em "Editar" numa linha,
+carregamos os dados daquele contato nos campos e guardamos o id que está sendo editado.
+Ao salvar, se houver um id em edição, chamamos <code class="inline">atualizar()</code>; caso
+contrário, <code class="inline">adicionar()</code>.</p>
+
+<div class="codewrap"><pre><span class="cm">// contatos.ts (evoluído para editar também)</span>
+<span class="kw">export class</span> <span class="ty">Contatos</span> {
+  <span class="kw">private</span> service = <span class="fn">inject</span>(<span class="ty">ContatoService</span>);
+  contatos = <span class="kw">this</span>.service.<span class="fn">listar</span>();
+
+  nome = <span class="st">''</span>;
+  email = <span class="st">''</span>;
+  telefone = <span class="st">''</span>;
+
+  <span class="cm">// null = criando; número = editando aquele id</span>
+  editandoId: <span class="ty">number</span> | <span class="kw">null</span> = <span class="kw">null</span>;
+
+  <span class="fn">editar</span>(c: <span class="ty">Contato</span>) {
+    <span class="kw">this</span>.editandoId = c.id;
+    <span class="kw">this</span>.nome = c.nome;
+    <span class="kw">this</span>.email = c.email;
+    <span class="kw">this</span>.telefone = c.telefone;
+  }
+
+  <span class="fn">salvar</span>() {
+    <span class="kw">if</span> (!<span class="kw">this</span>.nome.<span class="fn">trim</span>()) <span class="kw">return</span>;
+
+    <span class="kw">if</span> (<span class="kw">this</span>.editandoId !== <span class="kw">null</span>) {
+      <span class="cm">// UPDATE</span>
+      <span class="kw">this</span>.service.<span class="fn">atualizar</span>({
+        id: <span class="kw">this</span>.editandoId,
+        nome: <span class="kw">this</span>.nome,
+        email: <span class="kw">this</span>.email,
+        telefone: <span class="kw">this</span>.telefone,
+      });
+    } <span class="kw">else</span> {
+      <span class="cm">// CREATE</span>
+      <span class="kw">this</span>.service.<span class="fn">adicionar</span>({
+        nome: <span class="kw">this</span>.nome,
+        email: <span class="kw">this</span>.email,
+        telefone: <span class="kw">this</span>.telefone,
+      });
+    }
+
+    <span class="kw">this</span>.<span class="fn">limpar</span>();
+  }
+
+  <span class="fn">limpar</span>() {
+    <span class="kw">this</span>.editandoId = <span class="kw">null</span>;
+    <span class="kw">this</span>.nome = <span class="st">''</span>;
+    <span class="kw">this</span>.email = <span class="st">''</span>;
+    <span class="kw">this</span>.telefone = <span class="st">''</span>;
+  }
+
+  <span class="fn">excluir</span>(id: <span class="ty">number</span>) {
+    <span class="kw">this</span>.service.<span class="fn">remover</span>(id);
+  }
+}</pre></div>
+
+<p>No template, adicionamos o botão "Editar" em cada linha e um texto que muda o título do
+formulário conforme o modo:</p>
+
+<div class="codewrap"><pre><span class="cm">&lt;!-- contatos.html --&gt;</span>
+&lt;h3&gt;@if (editandoId !== <span class="kw">null</span>) { Editar contato } @else { Novo contato }&lt;/h3&gt;
+
+&lt;input [(ngModel)]=<span class="st">"nome"</span>     placeholder=<span class="st">"Nome"</span>&gt;
+&lt;input [(ngModel)]=<span class="st">"email"</span>    placeholder=<span class="st">"E-mail"</span>&gt;
+&lt;input [(ngModel)]=<span class="st">"telefone"</span> placeholder=<span class="st">"Telefone"</span>&gt;
+&lt;button (click)=<span class="st">"salvar()"</span>&gt;Salvar&lt;/button&gt;
+@if (editandoId !== <span class="kw">null</span>) {
+  &lt;button (click)=<span class="st">"limpar()"</span>&gt;Cancelar&lt;/button&gt;
+}
+
+&lt;!-- na tabela, dentro de cada linha: --&gt;
+&lt;td&gt;
+  &lt;button (click)=<span class="st">"editar(c)"</span>&gt;Editar&lt;/button&gt;
+  &lt;button (click)=<span class="st">"excluir(c.id)"</span>&gt;Excluir&lt;/button&gt;
+&lt;/td&gt;</pre></div>
+
+<h2 class="secao">Delete: excluir um contato</h2>
+<p>A exclusão já está pronta: o método <code class="inline">excluir(id)</code> chama
+<code class="inline">remover()</code> no service, que filtra o array. Uma melhoria comum é
+pedir confirmação antes:</p>
+
+<div class="codewrap"><pre><span class="fn">excluir</span>(id: <span class="ty">number</span>) {
+  <span class="kw">if</span> (<span class="ty">confirm</span>(<span class="st">'Tem certeza que deseja excluir este contato?'</span>)) {
+    <span class="kw">this</span>.service.<span class="fn">remover</span>(id);
+  }
+}</pre></div>
+
+<div class="warn">
+<b>Marco do curso.</b> Com este capítulo, o CRUD completo está funcionando inteiramente no
+navegador. É o ponto ideal para pausar, testar tudo ao vivo e tirar dúvidas antes de avançar
+para roteamento e API. Se o tempo estiver curto, este é um ótimo lugar para encerrar a parte
+prática obrigatória.
+</div>
+
+
+
+
+<!-- ============ CAPÍTULO 5 ============ -->
+
+<div class="chapter-nav"><a class="prev" href="#cap03"><div class="dir">← Anterior</div><div class="ttl">03 · Model e Service</div></a><a class="next" href="#cap05"><div class="dir">Próximo →</div><div class="ttl">05 · Roteamento</div></a></div>
+</section>
+<section id="cap05">
+<h1 class="capitulo" data-tag="MÓDULO 05">Roteamento</h1>
+<div class="mission">
+  <div class="card-title">🧭 MISSÃO 05 — TRANSFORMAR UMA TELA EM APLICAÇÃO</div>
+  <p>Você vai dividir a aplicação em páginas e navegar entre componentes sem recarregar o navegador.</p>
+  <div class="badges"><span class="badge red">🎯 Objetivo</span><span class="badge blue">⏱️ 20 min</span></div>
+</div>
+
+
+<p>Até agora tudo estava numa tela só. O <b>roteamento</b> permite ter várias "páginas"
+(que na verdade são componentes) e navegar entre elas mudando a URL, sem recarregar a
+aplicação. Um projeto criado com roteamento já vem com o arquivo
+<span class="file">app.routes.ts</span> e o <code class="inline">provideRouter</code>
+configurado no <span class="file">app.config.ts</span>.</p>
+
+<h2 class="secao">Configurar as rotas</h2>
+<p>As rotas são uma lista de objetos que associam um <b>caminho</b> (path) a um
+<b>componente</b>. Vamos supor duas telas: uma inicial e a lista de contatos.</p>
+
+<div class="codewrap"><pre><span class="cm">// app.routes.ts</span>
+<span class="kw">import</span> { Routes } <span class="kw">from</span> <span class="st">'@angular/router'</span>;
+<span class="kw">import</span> { Inicio } <span class="kw">from</span> <span class="st">'./inicio/inicio'</span>;
+<span class="kw">import</span> { Contatos } <span class="kw">from</span> <span class="st">'./contatos/contatos'</span>;
+
+<span class="kw">export const</span> routes: <span class="ty">Routes</span> = [
+  { path: <span class="st">''</span>,         component: <span class="ty">Inicio</span> },       <span class="cm">// http://localhost:4200/</span>
+  { path: <span class="st">'contatos'</span>, component: <span class="ty">Contatos</span> },     <span class="cm">// .../contatos</span>
+];</pre></div>
+
+<p>O <code class="inline">provideRouter(routes)</code> que liga tudo já fica no
+<span class="file">app.config.ts</span>:</p>
+
+<div class="codewrap"><pre><span class="cm">// app.config.ts</span>
+<span class="kw">import</span> { ApplicationConfig } <span class="kw">from</span> <span class="st">'@angular/core'</span>;
+<span class="kw">import</span> { provideRouter } <span class="kw">from</span> <span class="st">'@angular/router'</span>;
+<span class="kw">import</span> { routes } <span class="kw">from</span> <span class="st">'./app.routes'</span>;
+
+<span class="kw">export const</span> appConfig: <span class="ty">ApplicationConfig</span> = {
+  providers: [
+    <span class="fn">provideRouter</span>(routes),
+  ],
+};</pre></div>
+
+<h2 class="secao">RouterOutlet e RouterLink</h2>
+<p>Duas peças fazem a navegação funcionar no template. O
+<code class="inline">&lt;router-outlet&gt;</code> é o "buraco" onde o componente da rota atual
+é exibido. O <code class="inline">routerLink</code> é o atributo usado nos links de navegação
+(no lugar do <code class="inline">href</code>, para não recarregar a página). Ambos vêm do
+<code class="inline">RouterOutlet</code> e <code class="inline">RouterLink</code>, que devem
+ser importados no componente.</p>
+
+<div class="codewrap"><pre><span class="cm">// app.ts</span>
+<span class="kw">import</span> { Component } <span class="kw">from</span> <span class="st">'@angular/core'</span>;
+<span class="kw">import</span> { RouterOutlet, RouterLink } <span class="kw">from</span> <span class="st">'@angular/router'</span>;
+
+@<span class="fn">Component</span>({
+  selector: <span class="st">'app-root'</span>,
+  imports: [RouterOutlet, RouterLink],
+  templateUrl: <span class="st">'./app.html'</span>,
+})
+<span class="kw">export class</span> <span class="ty">App</span> {}</pre></div>
+
+<div class="codewrap"><pre><span class="cm">&lt;!-- app.html --&gt;</span>
+&lt;nav&gt;
+  &lt;a routerLink=<span class="st">"/"</span>&gt;Início&lt;/a&gt;
+  &lt;a routerLink=<span class="st">"/contatos"</span>&gt;Contatos&lt;/a&gt;
+&lt;/nav&gt;
+
+&lt;!-- o componente da rota atual aparece aqui --&gt;
+&lt;router-outlet&gt;&lt;/router-outlet&gt;</pre></div>
+
+<h2 class="secao">Parâmetros de rota</h2>
+<p>Muitas vezes precisamos de uma rota "por id", como
+<code class="inline">/contatos/editar/5</code>. Declaramos o parâmetro com dois-pontos no
+path e lemos o valor no componente com <code class="inline">ActivatedRoute</code>.</p>
+
+<div class="codewrap"><pre><span class="cm">// app.routes.ts</span>
+{ path: <span class="st">'contatos/editar/:id'</span>, component: <span class="ty">ContatoForm</span> },</pre></div>
+
+<div class="codewrap"><pre><span class="cm">// dentro do componente ContatoForm</span>
+<span class="kw">import</span> { inject } <span class="kw">from</span> <span class="st">'@angular/core'</span>;
+<span class="kw">import</span> { ActivatedRoute } <span class="kw">from</span> <span class="st">'@angular/router'</span>;
+
+<span class="kw">export class</span> <span class="ty">ContatoForm</span> {
+  <span class="kw">private</span> route = <span class="fn">inject</span>(<span class="ty">ActivatedRoute</span>);
+
+  <span class="kw">constructor</span>() {
+    <span class="kw">const</span> id = <span class="ty">Number</span>(<span class="kw">this</span>.route.snapshot.paramMap.<span class="fn">get</span>(<span class="st">'id'</span>));
+    <span class="cm">// use o id para buscar o contato no service...</span>
+  }
+}</pre></div>
+
+<div class="doc">
+<b>Documentação</b><br>
+Guia de roteamento:
+<a href="https://angular.dev/guide/routing">https://angular.dev/guide/routing</a>
+</div>
+
+
+<!-- ============ CAPÍTULO 6 ============ -->
+
+<div class="chapter-nav"><a class="prev" href="#cap04"><div class="dir">← Anterior</div><div class="ttl">04 · CRUD em memória</div></a><a class="next" href="#cap06"><div class="dir">Próximo →</div><div class="ttl">06 · API REST</div></a></div>
+</section>
+<section id="cap06">
+<h1 class="capitulo" data-tag="MÓDULO 06">Consumindo uma API REST com HttpClient</h1>
+<div class="mission">
+  <div class="card-title">🌐 MISSÃO 06 — CONECTAR AO MUNDO REAL</div>
+  <p>O CRUD deixa de viver apenas na memória e passa a conversar com uma API REST.</p>
+  <div class="badges"><span class="badge red">🎯 Objetivo</span><span class="badge blue">⏱️ 20 min</span></div>
+</div>
+
+
+<p>Guardar dados em memória é ótimo para aprender, mas some ao recarregar a página. Numa
+aplicação real, o service conversa com um <b>backend</b> por HTTP. O Angular oferece o
+<code class="inline">HttpClient</code> para isso. Esta seção é opcional no minicurso &mdash;
+mostre se sobrar tempo.</p>
+
+<div class="doc">
+<b>Dica de API para praticar</b><br>
+Para testar sem escrever backend, use o <b>json-server</b> (cria uma API REST fake a partir
+de um arquivo JSON) ou a <b>JSONPlaceholder</b> (<a href="https://jsonplaceholder.typicode.com">https://jsonplaceholder.typicode.com</a>),
+uma API pública de exemplo.
+</div>
+
+<h2 class="secao">Habilitar o HttpClient</h2>
+<p>Diferente das versões antigas (que importavam o <code class="inline">HttpClientModule</code>),
+hoje basta registrar o <code class="inline">provideHttpClient()</code> nos providers globais,
+no <span class="file">app.config.ts</span>.</p>
+
+<div class="codewrap"><pre><span class="cm">// app.config.ts</span>
+<span class="kw">import</span> { ApplicationConfig } <span class="kw">from</span> <span class="st">'@angular/core'</span>;
+<span class="kw">import</span> { provideRouter } <span class="kw">from</span> <span class="st">'@angular/router'</span>;
+<span class="kw">import</span> { provideHttpClient } <span class="kw">from</span> <span class="st">'@angular/common/http'</span>;
+<span class="kw">import</span> { routes } <span class="kw">from</span> <span class="st">'./app.routes'</span>;
+
+<span class="kw">export const</span> appConfig: <span class="ty">ApplicationConfig</span> = {
+  providers: [
+    <span class="fn">provideRouter</span>(routes),
+    <span class="fn">provideHttpClient</span>(),   <span class="cm">// habilita requisições HTTP</span>
+  ],
+};</pre></div>
+
+<h2 class="secao">Um service que fala com a API</h2>
+<p>Injetamos o <code class="inline">HttpClient</code> no service e criamos um método para cada
+verbo HTTP. Cada método devolve um <code class="inline">Observable</code>, que representa uma
+resposta que chegará no futuro (assíncrona).</p>
+
+<div class="codewrap"><pre><span class="cm">// services/contato.ts (versão com API)</span>
+<span class="kw">import</span> { Injectable, inject } <span class="kw">from</span> <span class="st">'@angular/core'</span>;
+<span class="kw">import</span> { HttpClient } <span class="kw">from</span> <span class="st">'@angular/common/http'</span>;
+<span class="kw">import</span> { Contato } <span class="kw">from</span> <span class="st">'../models/contato'</span>;
+
+@<span class="fn">Injectable</span>({ providedIn: <span class="st">'root'</span> })
+<span class="kw">export class</span> <span class="ty">ContatoService</span> {
+  <span class="kw">private</span> http = <span class="fn">inject</span>(<span class="ty">HttpClient</span>);
+  <span class="kw">private</span> url = <span class="st">'http://localhost:3000/contatos'</span>;
+
+  <span class="cm">// READ (GET) — lista todos</span>
+  <span class="fn">listar</span>() {
+    <span class="kw">return</span> <span class="kw">this</span>.http.<span class="fn">get</span>&lt;<span class="ty">Contato</span>[]&gt;(<span class="kw">this</span>.url);
+  }
+
+  <span class="cm">// READ por id (GET)</span>
+  <span class="fn">buscarPorId</span>(id: <span class="ty">number</span>) {
+    <span class="kw">return</span> <span class="kw">this</span>.http.<span class="fn">get</span>&lt;<span class="ty">Contato</span>&gt;(<span class="st">`${</span><span class="kw">this</span>.url<span class="st">}/${</span>id<span class="st">}`</span>);
+  }
+
+  <span class="cm">// CREATE (POST)</span>
+  <span class="fn">adicionar</span>(dados: <span class="ty">Omit</span>&lt;<span class="ty">Contato</span>, <span class="st">'id'</span>&gt;) {
+    <span class="kw">return</span> <span class="kw">this</span>.http.<span class="fn">post</span>&lt;<span class="ty">Contato</span>&gt;(<span class="kw">this</span>.url, dados);
+  }
+
+  <span class="cm">// UPDATE (PUT)</span>
+  <span class="fn">atualizar</span>(c: <span class="ty">Contato</span>) {
+    <span class="kw">return</span> <span class="kw">this</span>.http.<span class="fn">put</span>&lt;<span class="ty">Contato</span>&gt;(<span class="st">`${</span><span class="kw">this</span>.url<span class="st">}/${</span>c.id<span class="st">}`</span>, c);
+  }
+
+  <span class="cm">// DELETE</span>
+  <span class="fn">remover</span>(id: <span class="ty">number</span>) {
+    <span class="kw">return</span> <span class="kw">this</span>.http.<span class="fn">delete</span>(<span class="st">`${</span><span class="kw">this</span>.url<span class="st">}/${</span>id<span class="st">}`</span>);
+  }
+}</pre></div>
+
+<div class="tablewrap"><table>
+<tr><th>Operação</th><th>Verbo HTTP</th><th>Método do HttpClient</th></tr>
+<tr><td>Create</td><td>POST</td><td><code class="inline">http.post(url, dados)</code></td></tr>
+<tr><td>Read</td><td>GET</td><td><code class="inline">http.get(url)</code></td></tr>
+<tr><td>Update</td><td>PUT</td><td><code class="inline">http.put(url, dados)</code></td></tr>
+<tr><td>Delete</td><td>DELETE</td><td><code class="inline">http.delete(url)</code></td></tr>
+</table></div>
+
+<h2 class="secao">Consumindo no componente com estados de loading e erro</h2>
+<p>Como a resposta é assíncrona, precisamos "assinar" (subscribe) o Observable para receber
+os dados quando chegarem. É boa prática mostrar um indicador de carregamento e tratar erros.</p>
+
+<div class="codewrap"><pre><span class="cm">// contatos.ts</span>
+<span class="kw">import</span> { Component, inject, signal, OnInit } <span class="kw">from</span> <span class="st">'@angular/core'</span>;
+<span class="kw">import</span> { ContatoService } <span class="kw">from</span> <span class="st">'../services/contato'</span>;
+<span class="kw">import</span> { Contato } <span class="kw">from</span> <span class="st">'../models/contato'</span>;
+
+@<span class="fn">Component</span>({ <span class="cm">/* ... */</span> })
+<span class="kw">export class</span> <span class="ty">Contatos</span> <span class="kw">implements</span> <span class="ty">OnInit</span> {
+  <span class="kw">private</span> service = <span class="fn">inject</span>(<span class="ty">ContatoService</span>);
+
+  contatos = <span class="fn">signal</span>&lt;<span class="ty">Contato</span>[]&gt;([]);
+  carregando = <span class="fn">signal</span>(<span class="kw">false</span>);
+  erro = <span class="fn">signal</span>(<span class="st">''</span>);
+
+  <span class="cm">// ngOnInit roda uma vez quando o componente é criado</span>
+  <span class="fn">ngOnInit</span>() {
+    <span class="kw">this</span>.<span class="fn">carregar</span>();
+  }
+
+  <span class="fn">carregar</span>() {
+    <span class="kw">this</span>.carregando.<span class="fn">set</span>(<span class="kw">true</span>);
+    <span class="kw">this</span>.service.<span class="fn">listar</span>().<span class="fn">subscribe</span>({
+      next: (dados) =&gt; {
+        <span class="kw">this</span>.contatos.<span class="fn">set</span>(dados);
+        <span class="kw">this</span>.carregando.<span class="fn">set</span>(<span class="kw">false</span>);
+      },
+      error: () =&gt; {
+        <span class="kw">this</span>.erro.<span class="fn">set</span>(<span class="st">'Não foi possível carregar os contatos.'</span>);
+        <span class="kw">this</span>.carregando.<span class="fn">set</span>(<span class="kw">false</span>);
+      },
+    });
+  }
+
+  <span class="fn">excluir</span>(id: <span class="ty">number</span>) {
+    <span class="kw">this</span>.service.<span class="fn">remover</span>(id).<span class="fn">subscribe</span>(() =&gt; <span class="kw">this</span>.<span class="fn">carregar</span>());
+  }
+}</pre></div>
+
+<div class="codewrap"><pre><span class="cm">&lt;!-- contatos.html --&gt;</span>
+@if (carregando()) {
+  &lt;p&gt;Carregando...&lt;/p&gt;
+} @else if (erro()) {
+  &lt;p&gt;{{ erro() }}&lt;/p&gt;
+} @else {
+  &lt;table&gt;
+    @for (c <span class="kw">of</span> contatos(); track c.id) {
+      &lt;tr&gt;&lt;td&gt;{{ c.nome }}&lt;/td&gt;&lt;/tr&gt;
+    } @empty {
+      &lt;tr&gt;&lt;td&gt;Nenhum contato.&lt;/td&gt;&lt;/tr&gt;
+    }
+  &lt;/table&gt;
+}</pre></div>
+
+<h2 class="secao">httpResource: o jeito novo (Angular 21+)</h2>
+<p>A partir do Angular 21, existe uma forma mais enxuta de buscar dados que dispensa o
+<code class="inline">subscribe</code> manual e já entrega <i>signals</i> de valor,
+carregamento e erro: o <code class="inline">httpResource()</code>. Ele re-executa a busca
+automaticamente quando suas entradas (signals) mudam.</p>
+
+<div class="codewrap"><pre><span class="kw">import</span> { httpResource } <span class="kw">from</span> <span class="st">'@angular/common/http'</span>;
+
+<span class="kw">export class</span> <span class="ty">Contatos</span> {
+  <span class="cm">// entrega .value(), .isLoading() e .error() como signals</span>
+  contatosRes = <span class="fn">httpResource</span>&lt;<span class="ty">Contato</span>[]&gt;(() =&gt; <span class="st">'http://localhost:3000/contatos'</span>);
+}</pre></div>
+
+<div class="codewrap"><pre><span class="cm">&lt;!-- template --&gt;</span>
+@if (contatosRes.isLoading()) {
+  &lt;p&gt;Carregando...&lt;/p&gt;
+} @else {
+  @for (c <span class="kw">of</span> contatosRes.value(); track c.id) {
+    &lt;p&gt;{{ c.nome }}&lt;/p&gt;
+  }
+}</pre></div>
+
+<div class="doc">
+<b>Documentação</b><br>
+HttpClient: <a href="https://angular.dev/guide/http">https://angular.dev/guide/http</a>
+</div>
+
+
+<!-- ============ CAPÍTULO 7 ============ -->
+
+<div class="chapter-nav"><a class="prev" href="#cap05"><div class="dir">← Anterior</div><div class="ttl">05 · Roteamento</div></a><a class="next" href="#cap07"><div class="dir">Próximo →</div><div class="ttl">07 · Formulários</div></a></div>
+</section>
+<section id="cap07">
+<h1 class="capitulo" data-tag="MÓDULO 07">Formulários</h1>
+<div class="mission">
+  <div class="card-title">📝 MISSÃO 07 — VALIDAR O QUE O USUÁRIO DIGITA</div>
+  <p>Você vai conhecer Reactive Forms e aprender a impedir dados inválidos de chegarem à lógica da aplicação.</p>
+  <div class="badges"><span class="badge red">🎯 Objetivo</span><span class="badge blue">⏱️ 15 min</span></div>
+</div>
+
+
+<p>O Angular oferece duas abordagens para formulários. É bom a turma saber que existem as
+duas, mesmo que o minicurso use principalmente a primeira.</p>
+
+<div class="tablewrap"><table>
+<tr><th>Abordagem</th><th>Como funciona</th><th>Quando usar</th></tr>
+<tr><td>Template-driven</td><td>Usa <code class="inline">ngModel</code> direto no HTML (o que já fizemos no CRUD).</td><td>Formulários simples e rápidos.</td></tr>
+<tr><td>Reactive Forms</td><td>Define a estrutura do formulário no TypeScript, com mais controle e validação.</td><td>Formulários maiores, com validação e lógica.</td></tr>
+</table></div>
+
+<h2 class="secao">Reactive Forms na prática</h2>
+<p>Nos <b>Reactive Forms</b>, montamos o formulário no código com
+<code class="inline">FormBuilder</code>. Importe o
+<code class="inline">ReactiveFormsModule</code> no componente.</p>
+
+<div class="codewrap"><pre><span class="cm">// contato-form.ts</span>
+<span class="kw">import</span> { Component, inject } <span class="kw">from</span> <span class="st">'@angular/core'</span>;
+<span class="kw">import</span> { FormBuilder, ReactiveFormsModule, Validators } <span class="kw">from</span> <span class="st">'@angular/forms'</span>;
+
+@<span class="fn">Component</span>({
+  selector: <span class="st">'app-contato-form'</span>,
+  imports: [ReactiveFormsModule],
+  templateUrl: <span class="st">'./contato-form.html'</span>,
+})
+<span class="kw">export class</span> <span class="ty">ContatoForm</span> {
+  <span class="kw">private</span> fb = <span class="fn">inject</span>(<span class="ty">FormBuilder</span>);
+
+  form = <span class="kw">this</span>.fb.<span class="fn">group</span>({
+    nome:     [<span class="st">''</span>, [<span class="ty">Validators</span>.required]],
+    email:    [<span class="st">''</span>, [<span class="ty">Validators</span>.required, <span class="ty">Validators</span>.email]],
+    telefone: [<span class="st">''</span>],
+  });
+
+  <span class="fn">salvar</span>() {
+    <span class="kw">if</span> (<span class="kw">this</span>.form.invalid) <span class="kw">return</span>;
+    <span class="ty">console</span>.<span class="fn">log</span>(<span class="kw">this</span>.form.value);   <span class="cm">// { nome, email, telefone }</span>
+  }
+}</pre></div>
+
+<div class="codewrap"><pre><span class="cm">&lt;!-- contato-form.html --&gt;</span>
+&lt;form [formGroup]=<span class="st">"form"</span> (ngSubmit)=<span class="st">"salvar()"</span>&gt;
+  &lt;input formControlName=<span class="st">"nome"</span>     placeholder=<span class="st">"Nome"</span>&gt;
+  &lt;input formControlName=<span class="st">"email"</span>    placeholder=<span class="st">"E-mail"</span>&gt;
+  &lt;input formControlName=<span class="st">"telefone"</span> placeholder=<span class="st">"Telefone"</span>&gt;
+
+  @if (form.controls.email.invalid &amp;&amp; form.controls.email.touched) {
+    &lt;small&gt;Informe um e-mail válido.&lt;/small&gt;
+  }
+
+  &lt;button type=<span class="st">"submit"</span> [disabled]=<span class="st">"form.invalid"</span>&gt;Salvar&lt;/button&gt;
+&lt;/form&gt;</pre></div>
+
+<p>Pontos principais: o <code class="inline">[formGroup]</code> liga o form do TS ao HTML, cada
+<code class="inline">formControlName</code> conecta um input a um campo, e
+<code class="inline">(ngSubmit)</code> dispara o envio. Os <code class="inline">Validators</code>
+verificam regras (obrigatório, e-mail, tamanho mínimo etc.), e podemos desabilitar o botão
+enquanto o formulário for inválido.</p>
+
+<div class="doc">
+<b>Documentação</b><br>
+Formulários: <a href="https://angular.dev/guide/forms">https://angular.dev/guide/forms</a>
+</div>
+
+
+
+
+<!-- ============ CAPÍTULO 8 ============ -->
+
+<div class="chapter-nav"><a class="prev" href="#cap06"><div class="dir">← Anterior</div><div class="ttl">06 · API REST</div></a><a class="next" href="#cap08"><div class="dir">Próximo →</div><div class="ttl">08 · Extras e boas práticas</div></a></div>
+</section>
+<section id="cap08">
+<h1 class="capitulo" data-tag="MÓDULO 08">Extras e boas práticas</h1>
+<div class="mission">
+  <div class="card-title">✨ MISSÃO 08 — POLIR A APLICAÇÃO</div>
+  <p>Vamos reunir pipes, organização, build e boas práticas para deixar o projeto pronto para evoluir.</p>
+  <div class="badges"><span class="badge red">🎯 Objetivo</span><span class="badge blue">⏱️ 10 min</span></div>
+</div>
+
+
+<h2 class="secao">Pipes: formatar valores no template</h2>
+<p>Um <b>pipe</b> transforma um valor na hora de exibi-lo, sem alterar o dado original. Usa-se
+o caractere <code class="inline">|</code> (barra vertical) no template. O Angular já traz
+vários pipes prontos.</p>
+
+<div class="codewrap"><pre><span class="cm">&lt;!-- deixa o texto em maiúsculas --&gt;</span>
+&lt;p&gt;{{ nome | uppercase }}&lt;/p&gt;
+
+<span class="cm">&lt;!-- formata número como moeda brasileira --&gt;</span>
+&lt;p&gt;{{ preco | currency:<span class="st">'BRL'</span> }}&lt;/p&gt;
+
+<span class="cm">&lt;!-- formata uma data --&gt;</span>
+&lt;p&gt;{{ dataCadastro | date:<span class="st">'dd/MM/yyyy'</span> }}&lt;/p&gt;</pre></div>
+
+<p>Alguns pipes comuns: <code class="inline">uppercase</code>,
+<code class="inline">lowercase</code>, <code class="inline">titlecase</code>,
+<code class="inline">currency</code>, <code class="inline">date</code>,
+<code class="inline">number</code>, <code class="inline">percent</code> e
+<code class="inline">json</code> (ótimo para depurar objetos na tela).</p>
+
+<h2 class="secao">Estrutura de pastas sugerida</h2>
+<p>Para projetos que crescem, vale organizar por tipo de arquivo. Uma estrutura simples e
+clara para o nosso exemplo:</p>
+
+<div class="codewrap"><pre>src/app/
+├── models/
+│   └── contato.ts
+├── services/
+│   └── contato.ts
+├── contatos/
+│   ├── contatos.ts
+│   ├── contatos.html
+│   └── contatos.css
+├── inicio/
+│   └── ...
+├── app.ts
+├── app.html
+├── app.config.ts
+└── app.routes.ts</pre></div>
+
+<h2 class="secao">Build de produção</h2>
+<p>Quando a aplicação estiver pronta para publicar, gere a versão otimizada (minificada) com:</p>
+
+<div class="codewrap"><pre>ng build</pre></div>
+
+<p>Os arquivos finais ficam na pasta <span class="file">dist/</span>. São apenas arquivos
+estáticos (HTML, CSS e JS), que podem ser hospedados em qualquer servidor web, como Netlify,
+Vercel, Firebase Hosting, GitHub Pages ou um servidor próprio.</p>
+
+<h2 class="secao">Comandos essenciais da CLI (resumo)</h2>
+<div class="tablewrap"><table>
+<tr><th>Comando</th><th>O que faz</th></tr>
+<tr><td><code class="inline">ng new nome</code></td><td>Cria um novo projeto</td></tr>
+<tr><td><code class="inline">ng serve</code></td><td>Roda o servidor de desenvolvimento (porta 4200)</td></tr>
+<tr><td><code class="inline">ng generate component nome</code></td><td>Cria um componente (abrev.: <code class="inline">ng g c</code>)</td></tr>
+<tr><td><code class="inline">ng generate service nome</code></td><td>Cria um service (abrev.: <code class="inline">ng g s</code>)</td></tr>
+<tr><td><code class="inline">ng build</code></td><td>Gera a versão de produção em <code class="inline">dist/</code></td></tr>
+<tr><td><code class="inline">ng version</code></td><td>Mostra a versão do Angular e ferramentas</td></tr>
+</table></div>
+
+
+<!-- ============ CAPÍTULO 9 ============ -->
+
+<div class="chapter-nav"><a class="prev" href="#cap07"><div class="dir">← Anterior</div><div class="ttl">07 · Formulários</div></a><a class="next" href="#cap09"><div class="dir">Próximo →</div><div class="ttl">09 · Roteiro de 3 horas</div></a></div>
+</section>
+<section id="cap09">
+<h1 class="capitulo" data-tag="MÓDULO 09">Roteiro sugerido para o minicurso de 3 horas</h1>
+<div class="mission">
+  <div class="card-title">⏱️ MISSÃO 09 — ORGANIZAR A AULA</div>
+  <p>Use este roteiro como guia para manter o ritmo sem transformar a aula numa corrida contra o relógio.</p>
+  <div class="badges"><span class="badge red">🎯 Objetivo</span><span class="badge blue">⏱️ 3 horas</span></div>
+</div>
+
+
+<p>Uma divisão de tempo pensada para uma turma iniciante, priorizando o CRUD. Deixe as
+partes de API e Reactive Forms como "se sobrar tempo".</p>
+
+<div class="tablewrap"><table>
+<tr><th>Bloco</th><th>Tempo</th><th>Conteúdo</th></tr>
+<tr><td>1. Fundamentos e setup</td><td>~30 min</td><td>O que é Angular, instalar CLI, <code class="inline">ng new</code>, rodar com <code class="inline">ng serve</code>, tour pelos arquivos.</td></tr>
+<tr><td>2. Componentes e binding</td><td>~40 min</td><td>Criar componente, interpolação, property/event binding, signals, two-way binding, <code class="inline">@if</code>/<code class="inline">@for</code>.</td></tr>
+<tr><td>3. Model + Service</td><td>~15 min</td><td>Interface do contato, criar o service, <code class="inline">inject()</code>.</td></tr>
+<tr><td>4. CRUD em memória</td><td>~55 min</td><td>Create, Read, Update e Delete completos. É o coração do curso.</td></tr>
+<tr><td>Intervalo / dúvidas</td><td>~10 min</td><td>Pausa para testar e tirar dúvidas.</td></tr>
+<tr><td>5. Roteamento (opcional)</td><td>~20 min</td><td>Configurar rotas, RouterLink, RouterOutlet.</td></tr>
+<tr><td>6. API REST (se der tempo)</td><td>~20 min</td><td><code class="inline">provideHttpClient</code>, GET/POST/PUT/DELETE.</td></tr>
+<tr><td>7. Fechamento</td><td>~10 min</td><td>Boas práticas, build, próximos passos, Q&amp;A.</td></tr>
+</table></div>
+
+<div class="warn">
+<b>Recomendações para a apresentação.</b> Tenha o projeto base já criado e as dependências
+instaladas antes da aula (ou instrua a turma a instalar Node e Angular CLI com antecedência).
+A instalação ao vivo costuma consumir tempo demais. Se possível, deixe o CRUD em memória
+pronto num branch para poder mostrar o resultado caso algo trave ao vivo.
+</div>
+
+
+<!-- ============ CAPÍTULO 10 ============ -->
+
+<div class="chapter-nav"><a class="prev" href="#cap08"><div class="dir">← Anterior</div><div class="ttl">08 · Extras e boas práticas</div></a><a class="next" href="#cap10"><div class="dir">Próximo →</div><div class="ttl">10 · Erros comuns</div></a></div>
+</section>
+<section id="cap10">
+<h1 class="capitulo" data-tag="MÓDULO 10">Erros comuns de quem está começando</h1>
+<div class="mission">
+  <div class="card-title">🧯 MISSÃO 10 — DESBLOQUEAR ERROS</div>
+  <p>Erros fazem parte do desenvolvimento. Use esta seção como mapa rápido de diagnóstico.</p>
+  <div class="badges"><span class="badge red">🎯 Objetivo</span><span class="badge blue">⏱️ consulta</span></div>
+</div>
+
+
+<div class="tablewrap"><table>
+<tr><th>Sintoma</th><th>Causa provável</th><th>Solução</th></tr>
+<tr><td>O valor do signal não aparece / mostra <code class="inline">function...</code></td><td>Esqueceu os parênteses ao ler o signal</td><td>Use <code class="inline">contador()</code> e não <code class="inline">contador</code> no template.</td></tr>
+<tr><td><code class="inline">ngModel</code> não funciona</td><td>Falta importar o <code class="inline">FormsModule</code></td><td>Adicione <code class="inline">FormsModule</code> em <code class="inline">imports</code> do componente.</td></tr>
+<tr><td><code class="inline">@for</code> dá erro</td><td>Falta a cláusula <code class="inline">track</code></td><td>Sempre inclua <code class="inline">track item.id</code> (ou <code class="inline">$index</code>).</td></tr>
+<tr><td>Requisição HTTP falha com erro de provider</td><td>Falta o <code class="inline">provideHttpClient()</code></td><td>Adicione-o aos providers no <code class="inline">app.config.ts</code>.</td></tr>
+<tr><td>Componente não aparece</td><td>Não foi importado no componente-pai</td><td>Inclua o componente na lista <code class="inline">imports</code> e use sua tag no template.</td></tr>
+<tr><td>Link recarrega a página inteira</td><td>Uso de <code class="inline">href</code> em vez de <code class="inline">routerLink</code></td><td>Troque por <code class="inline">routerLink</code> e importe o <code class="inline">RouterLink</code>.</td></tr>
+<tr><td>Lista não atualiza após alterar</td><td>Mutou o array em vez de criar um novo</td><td>Use <code class="inline">.update()</code> com <code class="inline">[...]</code>, <code class="inline">.map()</code> ou <code class="inline">.filter()</code>.</td></tr>
+</table></div>
+
+
+<!-- ============ CAPÍTULO 11 ============ -->
+
+<div class="chapter-nav"><a class="prev" href="#cap09"><div class="dir">← Anterior</div><div class="ttl">09 · Roteiro de 3 horas</div></a><a class="next" href="#cap11"><div class="dir">Próximo →</div><div class="ttl">11 · Próximos passos</div></a></div>
+</section>
+<section id="cap11">
+<h1 class="capitulo" data-tag="MÓDULO 11">Próximos passos</h1>
+<div class="mission">
+  <div class="card-title">🚀 MISSÃO 11 — CONTINUAR EVOLUINDO</div>
+  <p>O CRUD é o ponto de partida. A partir daqui você pode aprofundar arquitetura, segurança, testes e aplicações reais.</p>
+  <div class="badges"><span class="badge red">🎯 Objetivo</span><span class="badge blue">⏱️ depois do curso</span></div>
+</div>
+
+
+<p>Depois de dominar o CRUD, a turma pode evoluir estudando os seguintes temas, em ordem de
+dificuldade:</p>
+
+<ul>
+<li><b>Reactive Forms com validação avançada</b> &mdash; validadores customizados, mensagens de erro, formulários aninhados.</li>
+<li><b>Comunicação entre componentes</b> &mdash; passar dados de pai para filho com <code class="inline">input()</code> e do filho para o pai com <code class="inline">output()</code>.</li>
+<li><b>Guards de rota</b> &mdash; proteger rotas que exigem autenticação.</li>
+<li><b>Interceptors HTTP</b> &mdash; adicionar token de autenticação automaticamente em todas as requisições.</li>
+<li><b>Bibliotecas de UI</b> &mdash; Angular Material, PrimeNG ou Tailwind para acelerar a criação de telas bonitas.</li>
+<li><b>Testes</b> &mdash; a partir do Angular 21, os testes usam Vitest por padrão.</li>
+<li><b>SSR (Server-Side Rendering)</b> &mdash; para melhorar performance e SEO.</li>
+</ul>
+
+<div class="doc">
+<b>Onde continuar estudando</b><br>
+Documentação oficial (com tutorial interativo):
+<a href="https://angular.dev">https://angular.dev</a><br>
+Tutorial "Tour of Heroes":
+<a href="https://angular.dev/tutorials">https://angular.dev/tutorials</a>
+</div>
+
+<hr class="soft">
+<p class="small" style="text-align:center; margin-top:30px;">
+Guia prático do iniciante &mdash; Angular &middot; Material de apoio para minicurso.<br>
+Código no padrão atual do framework (componentes standalone, signals e control flow).
+</p>
+
+
+<div class="chapter-nav"><a class="prev" href="#cap10"><div class="dir">← Anterior</div><div class="ttl">10 · Erros comuns</div></a><a class="next disabled"><div class="dir">Próximo →</div><div class="ttl">—</div></a></div>
+</section>
+
+
+    </article>
+  </main>
+</div>
+
+<button class="back-top" id="back-top" aria-label="Voltar ao topo">↑</button>
+
+<script>
+/* ---------- TEMA ---------- */
+const html = document.documentElement;
+function setTheme(t){
+  html.setAttribute('data-theme', t);
+  try { localStorage.setItem('guia-tema', t); } catch(e){}
+  const label = t === 'dark' ? '☀️ Modo claro' : '🌙 Modo escuro';
+  const icon  = t === 'dark' ? '☀️' : '🌙';
+  const d = document.getElementById('theme-btn-desk');
+  const m = document.getElementById('theme-btn');
+  if (d) d.textContent = label;
+  if (m) m.textContent = icon;
+}
+(function(){
+  let saved = 'light';
+  try { saved = localStorage.getItem('guia-tema') || 'light'; } catch(e){}
+  setTheme(saved);
+})();
+function toggleTheme(){ setTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); }
+document.getElementById('theme-btn-desk').addEventListener('click', toggleTheme);
+document.getElementById('theme-btn').addEventListener('click', toggleTheme);
+
+/* ---------- MENU MOBILE ---------- */
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('overlay');
+function openMenu(){ sidebar.classList.add('open'); overlay.classList.add('show'); }
+function closeMenu(){ sidebar.classList.remove('open'); overlay.classList.remove('show'); }
+document.getElementById('menu-btn').addEventListener('click', openMenu);
+overlay.addEventListener('click', closeMenu);
+document.querySelectorAll('#nav a').forEach(a => a.addEventListener('click', closeMenu));
+
+/* ---------- COPIAR CÓDIGO ---------- */
+document.querySelectorAll('.codewrap').forEach(wrap => {
+  const btn = document.createElement('button');
+  btn.className = 'copy-btn';
+  btn.textContent = 'Copiar';
+  btn.addEventListener('click', () => {
+    const code = wrap.querySelector('pre').innerText;
+    navigator.clipboard.writeText(code).then(() => {
+      btn.textContent = '✓ Copiado';
+      btn.classList.add('done');
+      setTimeout(() => { btn.textContent = 'Copiar'; btn.classList.remove('done'); }, 1600);
+    });
+  });
+  wrap.appendChild(btn);
+});
+
+/* ---------- BARRA DE PROGRESSO + SCROLLSPY ---------- */
+const bar = document.getElementById('progress-bar');
+const backTop = document.getElementById('back-top');
+const navLinks = Array.from(document.querySelectorAll('#nav a'));
+const sections = navLinks.map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+
+function onScroll(){
+  const h = document.documentElement;
+  const scrolled = h.scrollTop;
+  const total = h.scrollHeight - h.clientHeight;
+  bar.style.width = (total > 0 ? (scrolled / total) * 100 : 0) + '%';
+  backTop.style.display = scrolled > 500 ? 'block' : 'none';
+
+  // scrollspy
+  let currentId = sections.length ? sections[0].id : null;
+  const trigger = scrolled + 120;
+  for (const sec of sections){
+    if (sec.offsetTop <= trigger) currentId = sec.id;
+  }
+  navLinks.forEach(a => {
+    a.classList.toggle('active', a.getAttribute('href') === '#' + currentId);
+  });
+}
+window.addEventListener('scroll', onScroll, { passive: true });
+window.addEventListener('load', onScroll);
+
+backTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+</script>
+
+</body>
+</html>
