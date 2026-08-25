@@ -143,6 +143,14 @@ a:hover { text-decoration: underline; }
   font-weight: 600;
 }
 .nav a.active .num { color: var(--red); }
+.nav a.nav-quiz {
+  margin-top: 10px;
+  background: rgba(221,0,49,.16);
+  color: #fff;
+  font-weight: 700;
+  border-left-color: var(--red);
+}
+.nav a.nav-quiz:hover { background: rgba(221,0,49,.28); }
 
 .side-foot {
   margin-top: 24px;
@@ -390,6 +398,36 @@ tr:last-child td { border-bottom: none; }
 
 hr.soft { border: none; border-top: 1px solid var(--line); margin: 26px 0; }
 
+/* ===== Card de chamada para o Quiz ===== */
+.quiz-cta {
+  margin: 34px 0 10px;
+  padding: 32px 28px;
+  border-radius: 18px;
+  text-align: center;
+  color: #fff;
+  background: linear-gradient(135deg, var(--red) 0%, var(--red-dark) 100%);
+  box-shadow: 0 16px 40px color-mix(in srgb, var(--red) 40%, transparent);
+}
+.quiz-cta-emoji { font-size: 44px; line-height: 1; margin-bottom: 8px; }
+.quiz-cta-title { font-size: 22px; font-weight: 900; margin-bottom: 8px; }
+.quiz-cta-sub {
+  font-size: 15px; line-height: 1.6; opacity: .95;
+  max-width: 520px; margin: 0 auto 22px; text-align: center;
+}
+.quiz-cta-btn {
+  display: inline-block;
+  background: #fff;
+  color: var(--red-dark);
+  font-weight: 800;
+  font-size: 16px;
+  padding: 14px 30px;
+  border-radius: 12px;
+  text-decoration: none;
+  transition: transform .12s, box-shadow .12s;
+  box-shadow: 0 6px 18px rgba(0,0,0,.18);
+}
+.quiz-cta-btn:hover { transform: translateY(-2px); text-decoration: none; box-shadow: 0 10px 24px rgba(0,0,0,.26); }
+
   /* ===== Sumário indentado ===== */
   .toc-list { margin-top: 8px; }
   .toc-row {
@@ -578,6 +616,7 @@ ul.checklist li::before { content: "✓"; position: absolute; left: 0; color: va
       <a href="#cap09"><span class="num">09</span>Roteiro de 3 horas</a>
       <a href="#cap10"><span class="num">10</span>Erros comuns</a>
       <a href="#cap11"><span class="num">11</span>Próximos passos</a>
+      <a href="quiz.html" class="nav-quiz"><span class="num">🎯</span>Fazer a avaliação</a>
     </nav>
 
     <div class="side-foot">
@@ -2029,6 +2068,14 @@ Tutorial "Tour of Heroes":
 <a href="https://angular.dev/tutorials">https://angular.dev/tutorials</a>
 </div>
 
+<div class="quiz-cta">
+  <div class="quiz-cta-emoji">🎯</div>
+  <div class="quiz-cta-title">Chegou a hora de testar o que você aprendeu!</div>
+  <div class="quiz-cta-sub">Uma avaliação rápida de 10 questões sobre todo o conteúdo do minicurso.
+  Corrige na hora, explica cada resposta e atribui um conceito (A a D).</div>
+  <a class="quiz-cta-btn" href="quiz.html">Fazer a avaliação →</a>
+</div>
+
 <hr class="soft">
 <p class="small" style="text-align:center; margin-top:30px;">
 Guia prático do iniciante &mdash; Angular &middot; Material de apoio para minicurso.<br>
@@ -2096,7 +2143,8 @@ document.querySelectorAll('.codewrap').forEach(wrap => {
 /* ---------- BARRA DE PROGRESSO + SCROLLSPY ---------- */
 const bar = document.getElementById('progress-bar');
 const backTop = document.getElementById('back-top');
-const navLinks = Array.from(document.querySelectorAll('#nav a'));
+// só links de âncora interna (#) entram no scrollspy; o link do quiz (quiz.html) é externo
+const navLinks = Array.from(document.querySelectorAll('#nav a')).filter(a => a.getAttribute('href').startsWith('#'));
 const sections = navLinks.map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
 
 function onScroll(){
